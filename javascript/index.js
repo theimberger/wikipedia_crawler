@@ -1,5 +1,11 @@
-import { SetUp, ResizeCanvas } from './modules/set_up';
+import * as Lifecycle from './modules/lifecycle';
+
+const PageArray = [];
+
+setInterval(() => {
+  console.log(PageArray);
+}, 10000);
 
 document.addEventListener('DOMContentLoaded', () => {
-  SetUp();
+  Lifecycle.Start(PageArray);
 });

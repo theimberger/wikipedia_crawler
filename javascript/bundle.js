@@ -69,50 +69,22 @@
 
 "use strict";
 Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__modules_set_up__ = __webpack_require__(1);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__modules_lifecycle__ = __webpack_require__(4);
 
+
+const PageArray = [];
+
+setInterval(() => {
+  console.log(PageArray);
+}, 10000);
 
 document.addEventListener('DOMContentLoaded', () => {
-  Object(__WEBPACK_IMPORTED_MODULE_0__modules_set_up__["a" /* SetUp */])();
+  __WEBPACK_IMPORTED_MODULE_0__modules_lifecycle__["a" /* Start */](PageArray);
 });
 
 
 /***/ }),
-/* 1 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__ui_utils__ = __webpack_require__(2);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__ajax_utils__ = __webpack_require__(3);
-
-
-
-const SetUp = () => {
-  let canvas = document.getElementById('main');
-  ResizeCanvas(canvas);
-  var ctx = canvas.getContext('2d');
-
-  let startForm = document.getElementById('start');
-  startForm.addEventListener('submit', (e) => {
-    e.preventDefault();
-    __WEBPACK_IMPORTED_MODULE_0__ui_utils__["a" /* hideHeader */]();
-    let query = document.getElementById('start_input');
-    query.blur();
-    __WEBPACK_IMPORTED_MODULE_1__ajax_utils__["a" /* fetchWikiPage */](query.value);
-  });
-};
-/* harmony export (immutable) */ __webpack_exports__["a"] = SetUp;
-
-
-const ResizeCanvas = (canvas) => {
-  canvas.width = window.innerWidth;
-  canvas.height = window.innerHeight;
-};
-/* unused harmony export ResizeCanvas */
-
-
-
-/***/ }),
+/* 1 */,
 /* 2 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
@@ -120,7 +92,9 @@ const ResizeCanvas = (canvas) => {
 const hideHeader = () => {
   let header = document.getElementsByTagName('header');
   header = header[0];
-  header.style.top = "-200px";
+  let top = -(header.offsetHeight);
+  top += "px";
+  header.style.top = top;
 };
 /* harmony export (immutable) */ __webpack_exports__["a"] = hideHeader;
 
@@ -139,34 +113,127 @@ const showHeader = () => {
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-const fetchWikiPage = (title) => {
+// fetchWikiPage is tricky -
+//because the wiki api only lets me get 500 links per request,
+//if a page has > 500 links, I'll miss some, so I make the same request
+//but in decending order.  This does mean I'll miss any links between the two
+//if the page has > 1,000 links
+
+
+const fetchWikiPage = (PageArray, title, reverse = false, fetched = []) => {
+
+  // title - the name of the page we're getting links from
+  // reverse - whether we're getting a second batch of links from the same pages
+  //    in reverse order
+  // fetched - stores the links from the first query
+
   var wikiRequest = new XMLHttpRequest();
 
-  wikiRequest.open(
-    "GET",
-    `https://en.wikipedia.org/w/api.php?action=query&origin=*&format=json&prop=links&pllimit=max&titles=${title}`
-  );
+  if (!reverse) {
+    wikiRequest.open(
+      "GET",
+      `https://en.wikipedia.org/w/api.php?action=query&origin=*&format=json&prop=links&pllimit=max&titles=${title}`
+    );
+  } else {
+    wikiRequest.open(
+      "GET",
+      `https://en.wikipedia.org/w/api.php?action=query&origin=*&format=json&prop=links&pllimit=max&titles=${title}&pldir=descending`
+    );
+  }
 
   wikiRequest.onreadystatechange = () => {
+
     if (
       wikiRequest.readyState === XMLHttpRequest.DONE
       && wikiRequest.status === 200
     ) {
       let rjson = JSON.parse(wikiRequest.responseText);
-      let page = Object.keys(rjson.query.pages);
-      page = page[0];
-      console.log(rjson.query.pages[page].links);
-      return rjson.query.pages[page].links;
+      let pages = Object.keys(rjson.query.pages);
+      pages = pages[0];
+      pages = rjson.query.pages[pages].links;
+      if (pages.length === 500) {
+        if (reverse) {
+          pages = mergeResult(fetched, pages);
+          console.log(pages);
+          PageArray.push(pages);
+        } else {
+          console.log(pages);
+          fetchWikiPage(PageArray, title, true, pages);
+        }
+      } else if (pages.length > 0) {
+        console.log(pages);
+        PageArray.push(pages);
+      } else {
+        return false;
+      }
     } else if (wikiRequest.readyState === XMLHttpRequest.DONE) {
-      console.log("error");
+      alert("error");
     }
   };
 
-
-
-  wikiRequest.send(null);
+  wikiRequest.send();
 };
 /* harmony export (immutable) */ __webpack_exports__["a"] = fetchWikiPage;
+
+
+const mergeResult = (fetched, pages) => {
+  pages.reverse();
+  let count = 0;
+  let last = fetched[499].title;
+  while (pages[count].title <= last) {
+    count ++;
+  }
+  pages = pages.slice(count);
+  return fetched.concat(pages);
+};
+
+
+/***/ }),
+/* 4 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__ui_utils__ = __webpack_require__(2);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__ajax_utils__ = __webpack_require__(3);
+
+
+
+const Start = (PageArray) => {
+  let canvas = document.getElementById('main');
+  ResizeCanvas(canvas);
+  var ctx = canvas.getContext('2d');
+
+  let startForm = document.getElementById('start');
+  startForm.addEventListener('submit', inputListener(PageArray));
+};
+/* harmony export (immutable) */ __webpack_exports__["a"] = Start;
+
+
+const getLinks = (e, PageArray) => {
+  e.preventDefault();
+  __WEBPACK_IMPORTED_MODULE_0__ui_utils__["a" /* hideHeader */]();
+  let query = document.getElementById('start_input');
+  query.blur();
+  __WEBPACK_IMPORTED_MODULE_1__ajax_utils__["a" /* fetchWikiPage */](PageArray, query.value);
+  AddInput();
+};
+
+const inputListener = (PageArray) => (e) => getLinks(e, PageArray);
+
+const AddInput = () => {
+  let endInput = document.createElement("input");
+  endInput.id = "end_input";
+  endInput.type = "text";
+  endInput.placeholder = "Enter a target page";
+  let startForm = document.getElementById('start');
+  startForm.append(endInput);
+};
+
+const ResizeCanvas = (canvas) => {
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+};
+/* unused harmony export ResizeCanvas */
 
 
 
