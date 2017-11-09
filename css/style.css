@@ -1,3 +1,60 @@
-body {
+body, HTML, input {
+  margin: 0;
+  padding: 0;
   font-family: 'Roboto Mono', monospace;
+}
+
+#main {
+  position: fixed;
+  top: 0;
+  bottom: 0;
+}
+
+header {
+  position: absolute;
+  width: 40%;
+  left: 50px;
+  top: 50px;
+  -webkit-transition: top 0.75s;
+  transition: top 0.75s;
+}
+
+footer {
+  position: absolute;
+  width: 200px;
+  bottom: 10px;
+  right: 10px;
+}
+
+footer:hover #logos {
+  width: 100px;
+  height: 30px;
+}
+
+#logos {
+  width: 0px;
+  overflow: hidden;
+  display: inline-block;
+  -webkit-transition: width 1s;
+  transition: width 1s;
+  height: 30px;
+  margin-bottom: -10px;
+}
+
+.logo {
+  height: 1em;
+  cursor: pointer;
+}
+
+form {
+  position: absolute;
+  bottom: -70px;
+}
+
+input {
+  outline: none;
+  padding-bottom: 2px;
+  font-size: 1.5em;
+  border: none;
+  border-bottom: 1px solid gray;
 }
