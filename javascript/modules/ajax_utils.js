@@ -1,30 +1,27 @@
-// fetchWikiPage is tricky -
-//because the wiki api only lets me get 500 links per request,
-//if a page has > 500 links, I'll miss some, so I make the same request
-//but in decending order.  This does mean I'll miss any links between the two
-//if the page has > 1,000 links
 
-
-export const fetchWikiPage = (PageArray, title, reverse = false, fetched = []) => {
-
-  // title - the name of the page we're getting links from
-  // reverse - whether we're getting a second batch of links from the same pages
-  //    in reverse order
-  // fetched - stores the links from the first query
-
+export const fetchWikiPage = (
+  title,
+  callback,
+  reverse = false,
+  fetched = []
+) => {
   var wikiRequest = new XMLHttpRequest();
 
-  if (!reverse) {
+  // if (!reverse) {
+  //   wikiRequest.open(
+  //     "GET",
+  //     `https://en.wikipedia.org/w/api.php?action=query&origin=*&format=json&prop=links&pllimit=max&titles=${title}`
+  //   );
+  // } else {
+  //   wikiRequest.open(
+  //     "GET",
+  //     `https://en.wikipedia.org/w/api.php?action=query&origin=*&format=json&prop=links&pllimit=max&titles=${title}&pldir=descending`
+  //   );
+  // }
     wikiRequest.open(
       "GET",
-      `https://en.wikipedia.org/w/api.php?action=query&origin=*&format=json&prop=links&pllimit=max&titles=${title}`
+      `https://en.wikipedia.org/w/api.php?action=query&prop=revisions&rvprop=content&format=json&origin=*&titles=${title}`
     );
-  } else {
-    wikiRequest.open(
-      "GET",
-      `https://en.wikipedia.org/w/api.php?action=query&origin=*&format=json&prop=links&pllimit=max&titles=${title}&pldir=descending`
-    );
-  }
 
   wikiRequest.onreadystatechange = () => {
 
@@ -35,19 +32,17 @@ export const fetchWikiPage = (PageArray, title, reverse = false, fetched = []) =
       let rjson = JSON.parse(wikiRequest.responseText);
       let pages = Object.keys(rjson.query.pages);
       pages = pages[0];
-      pages = rjson.query.pages[pages].links;
+      pages = rjson.query.pages[pages].revisions[0]["*"];
+      pages = pages.match(/\[(\w+)/g).map((word) => word.slice(1));
       if (pages.length === 500) {
         if (reverse) {
           pages = mergeResult(fetched, pages);
-          console.log(pages);
-          PageArray.push(pages);
+          callback(pages);
         } else {
-          console.log(pages);
-          fetchWikiPage(PageArray, title, true, pages);
+          fetchWikiPage(title, callback, true, pages);
         }
       } else if (pages.length > 0) {
-        console.log(pages);
-        PageArray.push(pages);
+        callback(pages);
       } else {
         return false;
       }
@@ -69,3 +64,6 @@ const mergeResult = (fetched, pages) => {
   pages = pages.slice(count);
   return fetched.concat(pages);
 };
+
+
+//https://en.wikipedia.org/w/api.php?action=query&prop=revisions&rvprop=content&format=jsonfm&titles=${}

@@ -72,14 +72,8 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__modules_lifecycle__ = __webpack_require__(4);
 
 
-const PageArray = [];
-
-setInterval(() => {
-  console.log(PageArray);
-}, 10000);
-
 document.addEventListener('DOMContentLoaded', () => {
-  __WEBPACK_IMPORTED_MODULE_0__modules_lifecycle__["a" /* Start */](PageArray);
+  __WEBPACK_IMPORTED_MODULE_0__modules_lifecycle__["a" /* Start */]();
 });
 
 
@@ -113,33 +107,30 @@ const showHeader = () => {
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-// fetchWikiPage is tricky -
-//because the wiki api only lets me get 500 links per request,
-//if a page has > 500 links, I'll miss some, so I make the same request
-//but in decending order.  This does mean I'll miss any links between the two
-//if the page has > 1,000 links
 
-
-const fetchWikiPage = (PageArray, title, reverse = false, fetched = []) => {
-
-  // title - the name of the page we're getting links from
-  // reverse - whether we're getting a second batch of links from the same pages
-  //    in reverse order
-  // fetched - stores the links from the first query
-
+const fetchWikiPage = (
+  title,
+  callback,
+  reverse = false,
+  fetched = []
+) => {
   var wikiRequest = new XMLHttpRequest();
 
-  if (!reverse) {
+  // if (!reverse) {
+  //   wikiRequest.open(
+  //     "GET",
+  //     `https://en.wikipedia.org/w/api.php?action=query&origin=*&format=json&prop=links&pllimit=max&titles=${title}`
+  //   );
+  // } else {
+  //   wikiRequest.open(
+  //     "GET",
+  //     `https://en.wikipedia.org/w/api.php?action=query&origin=*&format=json&prop=links&pllimit=max&titles=${title}&pldir=descending`
+  //   );
+  // }
     wikiRequest.open(
       "GET",
-      `https://en.wikipedia.org/w/api.php?action=query&origin=*&format=json&prop=links&pllimit=max&titles=${title}`
+      `https://en.wikipedia.org/w/api.php?action=query&prop=revisions&rvprop=content&format=json&origin=*&titles=${title}`
     );
-  } else {
-    wikiRequest.open(
-      "GET",
-      `https://en.wikipedia.org/w/api.php?action=query&origin=*&format=json&prop=links&pllimit=max&titles=${title}&pldir=descending`
-    );
-  }
 
   wikiRequest.onreadystatechange = () => {
 
@@ -150,19 +141,17 @@ const fetchWikiPage = (PageArray, title, reverse = false, fetched = []) => {
       let rjson = JSON.parse(wikiRequest.responseText);
       let pages = Object.keys(rjson.query.pages);
       pages = pages[0];
-      pages = rjson.query.pages[pages].links;
+      pages = rjson.query.pages[pages].revisions[0]["*"];
+      pages = pages.match(/\[(\w+)/g).map((word) => word.slice(1));
       if (pages.length === 500) {
         if (reverse) {
           pages = mergeResult(fetched, pages);
-          console.log(pages);
-          PageArray.push(pages);
+          callback(pages);
         } else {
-          console.log(pages);
-          fetchWikiPage(PageArray, title, true, pages);
+          fetchWikiPage(title, callback, true, pages);
         }
       } else if (pages.length > 0) {
-        console.log(pages);
-        PageArray.push(pages);
+        callback(pages);
       } else {
         return false;
       }
@@ -188,6 +177,9 @@ const mergeResult = (fetched, pages) => {
 };
 
 
+//https://en.wikipedia.org/w/api.php?action=query&prop=revisions&rvprop=content&format=jsonfm&titles=${}
+
+
 /***/ }),
 /* 4 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
@@ -195,30 +187,34 @@ const mergeResult = (fetched, pages) => {
 "use strict";
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__ui_utils__ = __webpack_require__(2);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__ajax_utils__ = __webpack_require__(3);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__poly_hash__ = __webpack_require__(5);
 
 
 
-const Start = (PageArray) => {
+
+const LinkMap = new __WEBPACK_IMPORTED_MODULE_2__poly_hash__["a" /* default */]();
+
+const Start = () => {
   let canvas = document.getElementById('main');
   ResizeCanvas(canvas);
   var ctx = canvas.getContext('2d');
 
   let startForm = document.getElementById('start');
-  startForm.addEventListener('submit', inputListener(PageArray));
+  startForm.addEventListener('submit', InputListener);
 };
 /* harmony export (immutable) */ __webpack_exports__["a"] = Start;
 
 
-const getLinks = (e, PageArray) => {
+const GetLinks = (e) => {
   e.preventDefault();
   __WEBPACK_IMPORTED_MODULE_0__ui_utils__["a" /* hideHeader */]();
   let query = document.getElementById('start_input');
   query.blur();
-  __WEBPACK_IMPORTED_MODULE_1__ajax_utils__["a" /* fetchWikiPage */](PageArray, query.value);
-  AddInput();
+  LinkMap.add(query.value);
+  __WEBPACK_IMPORTED_MODULE_1__ajax_utils__["a" /* fetchWikiPage */](query.value, Run);
 };
 
-const inputListener = (PageArray) => (e) => getLinks(e, PageArray);
+const InputListener = (e) => GetLinks(e);
 
 const AddInput = () => {
   let endInput = document.createElement("input");
@@ -229,12 +225,109 @@ const AddInput = () => {
   startForm.append(endInput);
 };
 
+const Run = (pages) => {
+  let i = 0;
+  let uniques = [];
+  while (i < pages.length) {
+
+    if (!LinkMap.includes(pages[i])) {
+      LinkMap.add(pages[i]);
+      uniques.push(pages[i]);
+    }
+
+    i ++;
+  }
+
+  document.getElementById("test").append(pages);
+  document.getElementById("test").append("<br>");
+
+  AddInput();
+};
+
 const ResizeCanvas = (canvas) => {
   canvas.width = window.innerWidth;
   canvas.height = window.innerHeight;
 };
 /* unused harmony export ResizeCanvas */
 
+
+
+/***/ }),
+/* 5 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+class PolyHash {
+  constructor() {
+    this.map = Array(5000).fill(null);
+    this.origin = "";
+    this.currentParent = "";
+    this.count = 0;
+  }
+
+  add(title) {
+    if (this.origin === "") {
+      this.origin = title;
+      this.currentParent = title;
+      return;
+    }
+
+    let addition = [title, this.currentParent];
+    let bucket = Math.floor(title.hashCode() % this.map.length);
+    if (this.map[bucket] === null) {
+      this.map[bucket] = [];
+    }
+    this.map[bucket].push(addition);
+    this.count ++;
+    if (this.count > this.map.length) {
+      this.resizeMap();
+    }
+  }
+
+  resizeMap() {
+    //for now this'll do nothing
+  }
+
+  changeParent(parent) {
+    this.currentParent = parent;
+  }
+
+  includes(string) {
+    let includes = false;
+    let bucket = Math.floor(string.hashCode() % this.map.length);
+
+    if (this.map[bucket] === null) {
+      return false;
+    }
+
+    this.map[bucket].forEach((pair) => {
+      if (pair[0] === string) {
+        includes = true;
+      }
+    });
+
+    return includes;
+  }
+}
+/* harmony export (immutable) */ __webpack_exports__["a"] = PolyHash;
+
+
+
+//code from
+//http://werxltd.com/wp/2010/05/13/javascript-implementation-of-javas-string-hashcode-method/
+//slight varation to provide more variation in hashing
+
+String.prototype.hashCode = function() {
+  var hash = 0, i, chr;
+  if (this.length === 0) return hash;
+  for (i = 0; i < this.length; i++) {
+    chr   = this.charCodeAt(i);
+    hash  = ((hash << 5) - hash) + chr;
+    hash |= 0; // Convert to 32bit integer
+  }
+  hash = Math.floor(hash * Math.PI * 10000);
+  return Math.abs(hash);
+};
 
 
 /***/ })

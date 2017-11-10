@@ -1,25 +1,28 @@
 import * as UIUtils from './ui_utils';
 import * as AjaxUtils from './ajax_utils';
+import PolyHash from './poly_hash';
 
-export const Start = (PageArray) => {
+const LinkMap = new PolyHash();
+
+export const Start = () => {
   let canvas = document.getElementById('main');
   ResizeCanvas(canvas);
   var ctx = canvas.getContext('2d');
 
   let startForm = document.getElementById('start');
-  startForm.addEventListener('submit', inputListener(PageArray));
+  startForm.addEventListener('submit', InputListener);
 };
 
-const getLinks = (e, PageArray) => {
+const GetLinks = (e) => {
   e.preventDefault();
   UIUtils.hideHeader();
   let query = document.getElementById('start_input');
   query.blur();
-  AjaxUtils.fetchWikiPage(PageArray, query.value);
-  AddInput();
+  LinkMap.add(query.value);
+  AjaxUtils.fetchWikiPage(query.value, Run);
 };
 
-const inputListener = (PageArray) => (e) => getLinks(e, PageArray);
+const InputListener = (e) => GetLinks(e);
 
 const AddInput = () => {
   let endInput = document.createElement("input");
@@ -28,6 +31,25 @@ const AddInput = () => {
   endInput.placeholder = "Enter a target page";
   let startForm = document.getElementById('start');
   startForm.append(endInput);
+};
+
+const Run = (pages) => {
+  let i = 0;
+  let uniques = [];
+  while (i < pages.length) {
+
+    if (!LinkMap.includes(pages[i])) {
+      LinkMap.add(pages[i]);
+      uniques.push(pages[i]);
+    }
+
+    i ++;
+  }
+
+  document.getElementById("test").append(pages);
+  document.getElementById("test").append("<br>");
+
+  AddInput();
 };
 
 export const ResizeCanvas = (canvas) => {
