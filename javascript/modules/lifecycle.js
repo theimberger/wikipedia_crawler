@@ -3,6 +3,7 @@ import * as AjaxUtils from './ajax_utils';
 import PolyHash from './poly_hash';
 
 const LinkMap = new PolyHash();
+var FetchQue = [];
 
 export const Start = () => {
   let canvas = document.getElementById('main');
@@ -26,11 +27,10 @@ const GetLinks = (e) => {
 const InputListener = (e) => GetLinks(e);
 
 const AddInput = () => {
-  UIUtils.addInput()
+  UIUtils.addInput();
   let startForm = document.getElementById('start');
   startForm.removeEventListener('submit', InputListener);
   startForm.addEventListener('submit', secondInput);
-  startForm.append(endInput);
 };
 
 const secondInput = (e) => (e) => {
@@ -51,15 +51,29 @@ const secondInput = (e) => (e) => {
 };
 
 const Run = (pages) => {
+  let found = false;
   let i = 0;
   let uniques = [];
   while (i < pages.length) {
     if (!LinkMap.includes(pages[i])) {
       LinkMap.add(pages[i]);
       uniques.push(pages[i]);
+      if (pages[i] === LinkMap.destination) {
+        found = true;
+      }
     }
     i ++;
   }
+  i = 0;
+  FetchQue = FetchQue.concat(uniques);
+  setTimeout(() =>
+    {
+      console.log(FetchQue);
+      AjaxUtils.fetchWikiPage(FetchQue[0], Run);
+      FetchQue.shift();
+    },
+    1000
+  );
 };
 
 export const ResizeCanvas = (canvas) => {
