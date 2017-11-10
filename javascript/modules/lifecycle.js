@@ -20,36 +20,46 @@ const GetLinks = (e) => {
   query.blur();
   LinkMap.add(query.value);
   AjaxUtils.fetchWikiPage(query.value, Run);
+  AddInput();
 };
 
 const InputListener = (e) => GetLinks(e);
 
 const AddInput = () => {
-  let endInput = document.createElement("input");
-  endInput.id = "end_input";
-  endInput.type = "text";
-  endInput.placeholder = "Enter a target page";
+  UIUtils.addInput()
   let startForm = document.getElementById('start');
+  startForm.removeEventListener('submit', InputListener);
+  startForm.addEventListener('submit', secondInput);
   startForm.append(endInput);
+};
+
+const secondInput = (e) => (e) => {
+  e.preventDefault();
+  let first = document.getElementById('start_input');
+  let second = document.getElementById('end_input');
+  if (first.value !== LinkMap.origin) {
+    LinkMap.map = [];
+    LinkMap.parent = "";
+    LinkMap.origin = "";
+    GetLinks(first.value);
+    return;
+  }
+  if (second.value !== LinkMap.destination){
+    LinkMap.destination = second.value;
+    return;
+  }
 };
 
 const Run = (pages) => {
   let i = 0;
   let uniques = [];
   while (i < pages.length) {
-
     if (!LinkMap.includes(pages[i])) {
       LinkMap.add(pages[i]);
       uniques.push(pages[i]);
     }
-
     i ++;
   }
-
-  document.getElementById("test").append(pages);
-  document.getElementById("test").append("<br>");
-
-  AddInput();
 };
 
 export const ResizeCanvas = (canvas) => {

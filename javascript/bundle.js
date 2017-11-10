@@ -86,11 +86,11 @@ document.addEventListener('DOMContentLoaded', () => {
 const hideHeader = () => {
   let header = document.getElementsByTagName('header');
   header = header[0];
-  let top = -(header.offsetHeight);
+  let top = -(header.offsetHeight - 5);
   top += "px";
   header.style.top = top;
 };
-/* harmony export (immutable) */ __webpack_exports__["a"] = hideHeader;
+/* harmony export (immutable) */ __webpack_exports__["b"] = hideHeader;
 
 
 const showHeader = () => {
@@ -99,6 +99,17 @@ const showHeader = () => {
   header.style.top = "50px";
 };
 /* unused harmony export showHeader */
+
+
+const addInput = () => {
+  let endInput = document.createElement("input");
+  endInput.id = "end_input";
+  endInput.type = "text";
+  endInput.placeholder = "enter a target page";
+  let startForm = document.getElementById('start');
+  startForm.append(endInput);
+};
+/* harmony export (immutable) */ __webpack_exports__["a"] = addInput;
 
 
 
@@ -207,41 +218,51 @@ const Start = () => {
 
 const GetLinks = (e) => {
   e.preventDefault();
-  __WEBPACK_IMPORTED_MODULE_0__ui_utils__["a" /* hideHeader */]();
+  __WEBPACK_IMPORTED_MODULE_0__ui_utils__["b" /* hideHeader */]();
   let query = document.getElementById('start_input');
   query.blur();
   LinkMap.add(query.value);
   __WEBPACK_IMPORTED_MODULE_1__ajax_utils__["a" /* fetchWikiPage */](query.value, Run);
+  AddInput();
 };
 
 const InputListener = (e) => GetLinks(e);
 
 const AddInput = () => {
-  let endInput = document.createElement("input");
-  endInput.id = "end_input";
-  endInput.type = "text";
-  endInput.placeholder = "Enter a target page";
+  __WEBPACK_IMPORTED_MODULE_0__ui_utils__["a" /* addInput */]()
   let startForm = document.getElementById('start');
+  startForm.removeEventListener('submit', InputListener);
+  startForm.addEventListener('submit', secondInput);
   startForm.append(endInput);
+};
+
+const secondInput = (e) => (e) => {
+  e.preventDefault();
+  let first = document.getElementById('start_input');
+  let second = document.getElementById('end_input');
+  if (first.value !== LinkMap.origin) {
+    LinkMap.map = [];
+    LinkMap.parent = "";
+    LinkMap.origin = "";
+    GetLinks(first.value);
+    return;
+  }
+  if (second.value !== LinkMap.destination){
+    LinkMap.destination = second.value;
+    return;
+  }
 };
 
 const Run = (pages) => {
   let i = 0;
   let uniques = [];
   while (i < pages.length) {
-
     if (!LinkMap.includes(pages[i])) {
       LinkMap.add(pages[i]);
       uniques.push(pages[i]);
     }
-
     i ++;
   }
-
-  document.getElementById("test").append(pages);
-  document.getElementById("test").append("<br>");
-
-  AddInput();
 };
 
 const ResizeCanvas = (canvas) => {
@@ -261,6 +282,7 @@ class PolyHash {
   constructor() {
     this.map = Array(5000).fill(null);
     this.origin = "";
+    this.destination = "";
     this.currentParent = "";
     this.count = 0;
   }

@@ -2,6 +2,7 @@ export default class PolyHash {
   constructor() {
     this.map = Array(5000).fill(null);
     this.origin = "";
+    this.destination = "";
     this.currentParent = "";
     this.count = 0;
   }
