@@ -250,11 +250,7 @@ const fetchWikiPage = (
       wikiRequest.readyState === XMLHttpRequest.DONE
       && wikiRequest.status === 200
     ) {
-      let rjson = JSON.parse(wikiRequest.responseText);
-      let pages = Object.keys(rjson.query.pages);
-      pages = pages[0];
-      pages = rjson.query.pages[pages].revisions[0]["*"];
-      pages = pages.match(/\[(.*?)\]/g).map((word) => word.slice(1));
+      let pages = formatResponse(wikiRequest);
       if (pages.length === 500) {
         if (reverse) {
           pages = mergeResult(fetched, pages);
@@ -286,6 +282,28 @@ const mergeResult = (fetched, pages) => {
   }
   pages = pages.slice(count);
   return fetched.concat(pages);
+};
+
+const formatResponse = (response) => {
+  let rjson = JSON.parse(response.responseText);
+  let pages = Object.keys(rjson.query.pages);
+  pages = pages[0];
+  pages = rjson.query.pages[pages].revisions[0]["*"];
+
+  pages = pages.match(/\[(.*?)\]/g).map(
+    (word) => {
+      if (word.includes(":")){
+        return "";
+      }
+      word = word.slice(2, word.length - 1);
+      if (word.includes("|")) {
+        word = word.split("|");
+        word = word[0];
+      }
+      return word;
+    }).filter((word) => word.length > 0);
+
+  return pages;
 };
 
 
