@@ -33,7 +33,7 @@ export const fetchWikiPage = (
       let pages = Object.keys(rjson.query.pages);
       pages = pages[0];
       pages = rjson.query.pages[pages].revisions[0]["*"];
-      pages = pages.match(/\[(\w+)/g).map((word) => word.slice(1));
+      pages = pages.match(/\[(.*?)\]/g).map((word) => word.slice(1));
       if (pages.length === 500) {
         if (reverse) {
           pages = mergeResult(fetched, pages);

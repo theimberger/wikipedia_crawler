@@ -69,7 +69,7 @@
 
 "use strict";
 Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__modules_lifecycle__ = __webpack_require__(4);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__modules_lifecycle__ = __webpack_require__(1);
 
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -78,7 +78,108 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
 /***/ }),
-/* 1 */,
+/* 1 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__ui_utils__ = __webpack_require__(2);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__ajax_utils__ = __webpack_require__(3);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__poly_hash__ = __webpack_require__(4);
+
+
+
+
+const LinkMap = new __WEBPACK_IMPORTED_MODULE_2__poly_hash__["a" /* default */]();
+var FetchQue = [];
+
+const Start = () => {
+  let canvas = document.getElementById('main');
+  ResizeCanvas(canvas);
+  var ctx = canvas.getContext('2d');
+
+  let startForm = document.getElementById('start');
+  startForm.addEventListener('submit', InputListener);
+};
+/* harmony export (immutable) */ __webpack_exports__["a"] = Start;
+
+
+const GetLinks = (e) => {
+  e.preventDefault();
+  __WEBPACK_IMPORTED_MODULE_0__ui_utils__["b" /* hideHeader */]();
+  let query = document.getElementById('start_input');
+  query.blur();
+  LinkMap.add(query.value);
+  __WEBPACK_IMPORTED_MODULE_1__ajax_utils__["a" /* fetchWikiPage */](query.value, Run);
+  AddInput();
+};
+
+const InputListener = (e) => GetLinks(e);
+
+const AddInput = () => {
+  __WEBPACK_IMPORTED_MODULE_0__ui_utils__["a" /* addInput */]();
+  let startForm = document.getElementById('start');
+  startForm.removeEventListener('submit', InputListener);
+  startForm.addEventListener('keydown', secondInput);
+};
+
+const secondInput = (e) => {
+  if (e.keyCode !== 13) {
+    return;
+  }
+  e.preventDefault();
+  let first = document.getElementById('start_input');
+  let second = document.getElementById('end_input');
+  if (first.value !== LinkMap.origin) {
+    LinkMap.reset(first.value);
+    __WEBPACK_IMPORTED_MODULE_1__ajax_utils__["a" /* fetchWikiPage */](first.value, Run);
+    return;
+  }
+  if (second.value !== LinkMap.destination){
+    LinkMap.destination = second.value;
+    return;
+  }
+};
+
+const Run = (pages) => {
+  let found = false;
+  let i = 0;
+  let uniques = [];
+  while (i < pages.length) {
+    if (!LinkMap.includes(pages[i])) {
+      LinkMap.add(pages[i]);
+      uniques.push(pages[i]);
+      if (pages[i] === LinkMap.destination) {
+        found = true;
+      }
+    }
+    i ++;
+  }
+  i = 0;
+  FetchQue = FetchQue.concat(uniques);
+  setTimeout(() =>
+    {
+      if (LinkMap.includes(LinkMap.destination)) {
+        console.log("FOUND IT");
+      }
+      debugger
+      __WEBPACK_IMPORTED_MODULE_1__ajax_utils__["a" /* fetchWikiPage */](FetchQue[0], Run);
+      FetchQue.shift();
+      console.log(LinkMap);
+    },
+    1000
+  );
+};
+
+
+const ResizeCanvas = (canvas) => {
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+};
+/* unused harmony export ResizeCanvas */
+
+
+
+/***/ }),
 /* 2 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
@@ -153,7 +254,7 @@ const fetchWikiPage = (
       let pages = Object.keys(rjson.query.pages);
       pages = pages[0];
       pages = rjson.query.pages[pages].revisions[0]["*"];
-      pages = pages.match(/\[(\w+)/g).map((word) => word.slice(1));
+      pages = pages.match(/\[(.*?)\]/g).map((word) => word.slice(1));
       if (pages.length === 500) {
         if (reverse) {
           pages = mergeResult(fetched, pages);
@@ -193,102 +294,6 @@ const mergeResult = (fetched, pages) => {
 
 /***/ }),
 /* 4 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__ui_utils__ = __webpack_require__(2);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__ajax_utils__ = __webpack_require__(3);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__poly_hash__ = __webpack_require__(5);
-
-
-
-
-const LinkMap = new __WEBPACK_IMPORTED_MODULE_2__poly_hash__["a" /* default */]();
-var FetchQue = [];
-
-const Start = () => {
-  let canvas = document.getElementById('main');
-  ResizeCanvas(canvas);
-  var ctx = canvas.getContext('2d');
-
-  let startForm = document.getElementById('start');
-  startForm.addEventListener('submit', InputListener);
-};
-/* harmony export (immutable) */ __webpack_exports__["a"] = Start;
-
-
-const GetLinks = (e) => {
-  e.preventDefault();
-  __WEBPACK_IMPORTED_MODULE_0__ui_utils__["b" /* hideHeader */]();
-  let query = document.getElementById('start_input');
-  query.blur();
-  LinkMap.add(query.value);
-  __WEBPACK_IMPORTED_MODULE_1__ajax_utils__["a" /* fetchWikiPage */](query.value, Run);
-  AddInput();
-};
-
-const InputListener = (e) => GetLinks(e);
-
-const AddInput = () => {
-  __WEBPACK_IMPORTED_MODULE_0__ui_utils__["a" /* addInput */]();
-  let startForm = document.getElementById('start');
-  startForm.removeEventListener('submit', InputListener);
-  startForm.addEventListener('submit', secondInput);
-};
-
-const secondInput = (e) => (e) => {
-  e.preventDefault();
-  let first = document.getElementById('start_input');
-  let second = document.getElementById('end_input');
-  if (first.value !== LinkMap.origin) {
-    LinkMap.map = [];
-    LinkMap.parent = "";
-    LinkMap.origin = "";
-    GetLinks(first.value);
-    return;
-  }
-  if (second.value !== LinkMap.destination){
-    LinkMap.destination = second.value;
-    return;
-  }
-};
-
-const Run = (pages) => {
-  let found = false;
-  let i = 0;
-  let uniques = [];
-  while (i < pages.length) {
-    if (!LinkMap.includes(pages[i])) {
-      LinkMap.add(pages[i]);
-      uniques.push(pages[i]);
-      if (pages[i] === LinkMap.destination) {
-        found = true;
-      }
-    }
-    i ++;
-  }
-  i = 0;
-  FetchQue = FetchQue.concat(uniques);
-  setTimeout(() =>
-    {
-      console.log(FetchQue);
-      __WEBPACK_IMPORTED_MODULE_1__ajax_utils__["a" /* fetchWikiPage */](FetchQue[0], Run);
-      FetchQue.shift();
-    },
-    1000
-  );
-};
-
-const ResizeCanvas = (canvas) => {
-  canvas.width = window.innerWidth;
-  canvas.height = window.innerHeight;
-};
-/* unused harmony export ResizeCanvas */
-
-
-
-/***/ }),
-/* 5 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -343,6 +348,14 @@ class PolyHash {
     });
 
     return includes;
+  }
+
+  reset(newTarget) {
+    this.map = Array(5000).fill(null);
+    this.origin = newTarget;
+    // this.destination = "";
+    this.currentParent = "";
+    this.count = 0;
   }
 }
 /* harmony export (immutable) */ __webpack_exports__["a"] = PolyHash;

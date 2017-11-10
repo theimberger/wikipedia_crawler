@@ -50,6 +50,14 @@ export default class PolyHash {
 
     return includes;
   }
+
+  reset(newTarget) {
+    this.map = Array(5000).fill(null);
+    this.origin = newTarget;
+    // this.destination = "";
+    this.currentParent = "";
+    this.count = 0;
+  }
 }
 
 

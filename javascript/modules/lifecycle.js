@@ -30,18 +30,19 @@ const AddInput = () => {
   UIUtils.addInput();
   let startForm = document.getElementById('start');
   startForm.removeEventListener('submit', InputListener);
-  startForm.addEventListener('submit', secondInput);
+  startForm.addEventListener('keydown', secondInput);
 };
 
-const secondInput = (e) => (e) => {
+const secondInput = (e) => {
+  if (e.keyCode !== 13) {
+    return;
+  }
   e.preventDefault();
   let first = document.getElementById('start_input');
   let second = document.getElementById('end_input');
   if (first.value !== LinkMap.origin) {
-    LinkMap.map = [];
-    LinkMap.parent = "";
-    LinkMap.origin = "";
-    GetLinks(first.value);
+    LinkMap.reset(first.value);
+    AjaxUtils.fetchWikiPage(first.value, Run);
     return;
   }
   if (second.value !== LinkMap.destination){
@@ -68,13 +69,18 @@ const Run = (pages) => {
   FetchQue = FetchQue.concat(uniques);
   setTimeout(() =>
     {
-      console.log(FetchQue);
+      if (LinkMap.includes(LinkMap.destination)) {
+        console.log("FOUND IT");
+      }
+      debugger
       AjaxUtils.fetchWikiPage(FetchQue[0], Run);
       FetchQue.shift();
+      console.log(LinkMap);
     },
     1000
   );
 };
+
 
 export const ResizeCanvas = (canvas) => {
   canvas.width = window.innerWidth;
