@@ -3,7 +3,7 @@ import * as AjaxUtils from './ajax_utils';
 import PolyHash from './poly_hash';
 
 const LinkMap = new PolyHash();
-var FetchQue = [];
+const FetchQue = [];
 
 export const Start = () => {
   let canvas = document.getElementById('main');
@@ -40,6 +40,7 @@ const secondInput = (e) => {
   e.preventDefault();
   let first = document.getElementById('start_input');
   let second = document.getElementById('end_input');
+
   if (first.value !== LinkMap.origin) {
     LinkMap.reset(first.value);
     AjaxUtils.fetchWikiPage(first.value, Run);
@@ -51,36 +52,85 @@ const secondInput = (e) => {
   }
 };
 
-const Run = (pages) => {
-  let found = false;
+
+
+////////// NOT MINE //////////////
+function shuffle (array) {
+  var i = 0
+    , j = 0
+    , temp = null;
+
+  for (i = array.length - 1; i > 0; i -= 1) {
+    j = Math.floor(Math.random() * (i + 1));
+    temp = array[i];
+    array[i] = array[j];
+    array[j] = temp;
+  }
+  return array;
+}
+
+const filterPages = (pages) => {
+  if (pages.length === 0){
+    return pages;
+  }
+  let filtered = [];
   let i = 0;
-  let uniques = [];
+
+  let frequency = (100/pages.length);
+
   while (i < pages.length) {
-    if (!LinkMap.includes(pages[i])) {
-      LinkMap.add(pages[i]);
-      uniques.push(pages[i]);
-      if (pages[i] === LinkMap.destination) {
-        found = true;
-      }
+    if (LinkMap.includes(pages[i])) {
+      i ++;
+      continue;
+    }
+    if (pages[i].includes(LinkMap.destination) &&
+        LinkMap.destination.length > 4) {
+
+      filtered.push(pages[i]);
+      i ++;
+      continue;
+    }
+    if ((50 * Math.random()) + frequency > 50) {
+      filtered.push(pages[i]);
     }
     i ++;
   }
-  i = 0;
-  FetchQue = FetchQue.concat(uniques);
-  setTimeout(() =>
-    {
-      if (LinkMap.includes(LinkMap.destination)) {
-        console.log("FOUND IT");
-      }
-      debugger
-      AjaxUtils.fetchWikiPage(FetchQue[0], Run);
-      FetchQue.shift();
-      console.log(LinkMap);
-    },
-    1000
-  );
+
+  return filtered;
 };
 
+const Run = (pages) => {
+  var Test = document.getElementById('test');
+  let found = false;
+  pages = filterPages(pages);
+
+  let i = 0;
+
+  while (i < pages.length) {
+    Test.append(pages[i] + " ");
+    LinkMap.add(pages[i]);
+    FetchQue.push(RunFactory(pages[i]));
+    // uniques.push(pages[i]);
+    if (pages[i] === LinkMap.destination) {
+      found = true;
+    }
+    i ++;
+  }
+
+  if (found) {
+    console.log("FOUND IT");
+    debugger
+  }
+
+  setTimeout(FetchQue[0], 200);
+};
+
+const RunFactory = (title) => () => {
+  console.log(title);
+  LinkMap.currentParent = title;
+  AjaxUtils.fetchWikiPage(title, Run);
+  FetchQue.shift();
+};
 
 export const ResizeCanvas = (canvas) => {
   canvas.width = window.innerWidth;

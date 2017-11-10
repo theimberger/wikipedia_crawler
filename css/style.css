@@ -2,6 +2,7 @@ body, HTML, input {
   margin: 0;
   padding: 0;
   font-family: 'Roboto Mono', monospace;
+  overflow: hidden;
 }
 
 #main {
@@ -58,4 +59,14 @@ input {
   font-size: 1.5em;
   border: none;
   border-bottom: 1px solid gray;
+}
+
+ul {
+  position: absolute;
+  font-size: 9px;
+  width: 500px;
+  top: 100px;
+  right: 10px;
+  height: 500px;
+  overflow: scroll;
 }

@@ -7,17 +7,6 @@ export const fetchWikiPage = (
 ) => {
   var wikiRequest = new XMLHttpRequest();
 
-  // if (!reverse) {
-  //   wikiRequest.open(
-  //     "GET",
-  //     `https://en.wikipedia.org/w/api.php?action=query&origin=*&format=json&prop=links&pllimit=max&titles=${title}`
-  //   );
-  // } else {
-  //   wikiRequest.open(
-  //     "GET",
-  //     `https://en.wikipedia.org/w/api.php?action=query&origin=*&format=json&prop=links&pllimit=max&titles=${title}&pldir=descending`
-  //   );
-  // }
     wikiRequest.open(
       "GET",
       `https://en.wikipedia.org/w/api.php?action=query&prop=revisions&rvprop=content&format=json&origin=*&titles=${title}`
@@ -40,6 +29,7 @@ export const fetchWikiPage = (
       } else if (pages.length > 0) {
         callback(pages);
       } else {
+        callback([]);
         return false;
       }
     } else if (wikiRequest.readyState === XMLHttpRequest.DONE) {
@@ -63,13 +53,21 @@ const mergeResult = (fetched, pages) => {
 
 const formatResponse = (response) => {
   let rjson = JSON.parse(response.responseText);
+  if (pageDNE(rjson)) {
+    console.log("page DNE");
+    return [];
+  }
   let pages = Object.keys(rjson.query.pages);
   pages = pages[0];
   pages = rjson.query.pages[pages].revisions[0]["*"];
 
   pages = pages.match(/\[(.*?)\]/g).map(
     (word) => {
-      if (word.includes(":")){
+      if (
+        word.includes(":") ||
+        word.includes("#") ||
+        word.includes(".")
+      ){
         return "";
       }
       word = word.slice(2, word.length - 1);
@@ -83,5 +81,8 @@ const formatResponse = (response) => {
   return pages;
 };
 
-
-//https://en.wikipedia.org/w/api.php?action=query&prop=revisions&rvprop=content&format=jsonfm&titles=${}
+const pageDNE = (response) => {
+  let pageIdx = Object.keys(response.query.pages);
+  pageIdx = pageIdx[0];
+  return (pageIdx === "-1");
+};

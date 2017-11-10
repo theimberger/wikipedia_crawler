@@ -19,4 +19,5 @@ export const addInput = () => {
   endInput.placeholder = "enter a target page";
   let startForm = document.getElementById('start');
   startForm.append(endInput);
+  endInput.focus();
 };

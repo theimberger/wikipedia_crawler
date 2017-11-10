@@ -33,23 +33,43 @@ export default class PolyHash {
   changeParent(parent) {
     this.currentParent = parent;
   }
-
-  includes(string) {
-    let includes = false;
+  get(string) {
+    let match = [];
     let bucket = Math.floor(string.hashCode() % this.map.length);
 
     if (this.map[bucket] === null) {
-      return false;
+        return false;
     }
 
     this.map[bucket].forEach((pair) => {
       if (pair[0] === string) {
-        includes = true;
+        match = pair;
       }
     });
 
-    return includes;
+    if (match.length === 2){
+      return match;
+    }
+    return false;
   }
+
+  includes(string) {
+    this.get(string);
+  }
+
+  // includes(string) {
+  //   let includes = false;
+  //   let bucket = Math.floor(string.hashCode() % this.map.length);
+  //
+  //   if (this.map[bucket] === null) {
+  //     return false;
+  //   }
+  //
+  //   this.map[bucket].forEach((pair) => {
+  //     if (pair[0] === string) {
+  //       includes = true;
+  //     }
+  //   });
 
   reset(newTarget) {
     this.map = Array(5000).fill(null);
