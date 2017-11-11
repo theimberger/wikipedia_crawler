@@ -15,7 +15,7 @@ export default class PolyHash {
     }
 
     let addition = [title, this.currentParent];
-    let bucket = Math.floor(title.hashCode() % this.map.length);
+    let bucket = Math.floor(hashString(title) % this.map.length);
     if (this.map[bucket] === null) {
       this.map[bucket] = [];
     }
@@ -35,7 +35,7 @@ export default class PolyHash {
   }
   get(string) {
     let match = [];
-    let bucket = Math.floor(string.hashCode() % this.map.length);
+    let bucket = Math.floor(hashString(string) % this.map.length);
 
     if (this.map[bucket] === null) {
         return false;
@@ -53,23 +53,32 @@ export default class PolyHash {
     return false;
   }
 
-  includes(string) {
-    this.get(string);
+  trace(to, from = this.origin) {
+    if (!this.includes(to)) {
+      return false;
+    }
+    let parent = to;
+    let pair;
+    let trail = [];
+
+
+    while (parent !== from && parent !== this.origin) {
+      trail.push(parent);
+      pair = this.get(parent);
+      pair = pair[1];
+      parent = pair;
+    }
+    trail.push(parent);
+    return trail.reverse();
   }
 
-  // includes(string) {
-  //   let includes = false;
-  //   let bucket = Math.floor(string.hashCode() % this.map.length);
-  //
-  //   if (this.map[bucket] === null) {
-  //     return false;
-  //   }
-  //
-  //   this.map[bucket].forEach((pair) => {
-  //     if (pair[0] === string) {
-  //       includes = true;
-  //     }
-  //   });
+  includes(string) {
+    if (this.get(string) === false){
+      return false;
+    }
+
+    return true;
+  }
 
   reset(newTarget) {
     this.map = Array(5000).fill(null);
@@ -80,19 +89,14 @@ export default class PolyHash {
   }
 }
 
-
-//code from
-//http://werxltd.com/wp/2010/05/13/javascript-implementation-of-javas-string-hashcode-method/
-//slight varation to provide more variation in hashing
-
-String.prototype.hashCode = function() {
-  var hash = 0, i, chr;
-  if (this.length === 0) return hash;
-  for (i = 0; i < this.length; i++) {
-    chr   = this.charCodeAt(i);
-    hash  = ((hash << 5) - hash) + chr;
-    hash |= 0; // Convert to 32bit integer
+const hashString = (string) => {
+  var hash = 1;
+  let i = 0;
+  while (i < string.length) {
+    hash += string.charCodeAt(i);
+    i ++;
   }
-  hash = Math.floor(hash * Math.PI * 10000);
+
+  hash = Math.floor(hash * Math.PI * 100000);
   return Math.abs(hash);
 };

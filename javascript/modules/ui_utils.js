@@ -21,3 +21,12 @@ export const addInput = () => {
   startForm.append(endInput);
   endInput.focus();
 };
+
+export const ResizeCanvas = (canvas) => {
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+};
+
+export const changeColor = (id, color) => {
+  document.getElementById(id).style.color = color;
+};

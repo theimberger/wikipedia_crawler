@@ -4,10 +4,11 @@ import PolyHash from './poly_hash';
 
 const LinkMap = new PolyHash();
 const FetchQue = [];
+var targetPages = [];
 
 export const Start = () => {
   let canvas = document.getElementById('main');
-  ResizeCanvas(canvas);
+  UIUtils.ResizeCanvas(canvas);
   var ctx = canvas.getContext('2d');
 
   let startForm = document.getElementById('start');
@@ -48,26 +49,10 @@ const secondInput = (e) => {
   }
   if (second.value !== LinkMap.destination){
     LinkMap.destination = second.value;
+    AjaxUtils.fetchWikiPage(second.value, updateEnd);
     return;
   }
 };
-
-
-
-////////// NOT MINE //////////////
-function shuffle (array) {
-  var i = 0
-    , j = 0
-    , temp = null;
-
-  for (i = array.length - 1; i > 0; i -= 1) {
-    j = Math.floor(Math.random() * (i + 1));
-    temp = array[i];
-    array[i] = array[j];
-    array[j] = temp;
-  }
-  return array;
-}
 
 const filterPages = (pages) => {
   if (pages.length === 0){
@@ -103,15 +88,14 @@ const Run = (pages) => {
   var Test = document.getElementById('test');
   let found = false;
   pages = filterPages(pages);
+  Test.append(pages + " ");
 
   let i = 0;
 
   while (i < pages.length) {
-    Test.append(pages[i] + " ");
     LinkMap.add(pages[i]);
     FetchQue.push(RunFactory(pages[i]));
-    // uniques.push(pages[i]);
-    if (pages[i] === LinkMap.destination) {
+    if (pages[i].toLowerCase() === LinkMap.destination.toLowerCase()) {
       found = true;
     }
     i ++;
@@ -119,7 +103,7 @@ const Run = (pages) => {
 
   if (found) {
     console.log("FOUND IT");
-    debugger
+    return
   }
 
   setTimeout(FetchQue[0], 200);
@@ -132,7 +116,11 @@ const RunFactory = (title) => () => {
   FetchQue.shift();
 };
 
-export const ResizeCanvas = (canvas) => {
-  canvas.width = window.innerWidth;
-  canvas.height = window.innerHeight;
+const updateEnd = (pages) => {
+  if (pages.length === 0){
+    UIUtils.changeColor("end_input", "red");
+  } else {
+    targetPages = pages;
+    UIUtils.changeColor("end_input", "black");
+  }
 };

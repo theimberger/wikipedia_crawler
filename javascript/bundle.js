@@ -91,10 +91,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
 const LinkMap = new __WEBPACK_IMPORTED_MODULE_2__poly_hash__["a" /* default */]();
 const FetchQue = [];
+var targetPages = [];
 
 const Start = () => {
   let canvas = document.getElementById('main');
-  ResizeCanvas(canvas);
+  __WEBPACK_IMPORTED_MODULE_0__ui_utils__["a" /* ResizeCanvas */](canvas);
   var ctx = canvas.getContext('2d');
 
   let startForm = document.getElementById('start');
@@ -105,7 +106,7 @@ const Start = () => {
 
 const GetLinks = (e) => {
   e.preventDefault();
-  __WEBPACK_IMPORTED_MODULE_0__ui_utils__["b" /* hideHeader */]();
+  __WEBPACK_IMPORTED_MODULE_0__ui_utils__["d" /* hideHeader */]();
   let query = document.getElementById('start_input');
   query.blur();
   LinkMap.add(query.value);
@@ -116,7 +117,7 @@ const GetLinks = (e) => {
 const InputListener = (e) => GetLinks(e);
 
 const AddInput = () => {
-  __WEBPACK_IMPORTED_MODULE_0__ui_utils__["a" /* addInput */]();
+  __WEBPACK_IMPORTED_MODULE_0__ui_utils__["b" /* addInput */]();
   let startForm = document.getElementById('start');
   startForm.removeEventListener('submit', InputListener);
   startForm.addEventListener('keydown', secondInput);
@@ -137,26 +138,10 @@ const secondInput = (e) => {
   }
   if (second.value !== LinkMap.destination){
     LinkMap.destination = second.value;
+    __WEBPACK_IMPORTED_MODULE_1__ajax_utils__["a" /* fetchWikiPage */](second.value, updateEnd);
     return;
   }
 };
-
-
-
-////////// NOT MINE //////////////
-function shuffle (array) {
-  var i = 0
-    , j = 0
-    , temp = null;
-
-  for (i = array.length - 1; i > 0; i -= 1) {
-    j = Math.floor(Math.random() * (i + 1));
-    temp = array[i];
-    array[i] = array[j];
-    array[j] = temp;
-  }
-  return array;
-}
 
 const filterPages = (pages) => {
   if (pages.length === 0){
@@ -192,15 +177,14 @@ const Run = (pages) => {
   var Test = document.getElementById('test');
   let found = false;
   pages = filterPages(pages);
+  Test.append(pages + " ");
 
   let i = 0;
 
   while (i < pages.length) {
-    Test.append(pages[i] + " ");
     LinkMap.add(pages[i]);
     FetchQue.push(RunFactory(pages[i]));
-    // uniques.push(pages[i]);
-    if (pages[i] === LinkMap.destination) {
+    if (pages[i].toLowerCase() === LinkMap.destination.toLowerCase()) {
       found = true;
     }
     i ++;
@@ -208,7 +192,7 @@ const Run = (pages) => {
 
   if (found) {
     console.log("FOUND IT");
-    debugger
+    return
   }
 
   setTimeout(FetchQue[0], 200);
@@ -221,12 +205,14 @@ const RunFactory = (title) => () => {
   FetchQue.shift();
 };
 
-const ResizeCanvas = (canvas) => {
-  canvas.width = window.innerWidth;
-  canvas.height = window.innerHeight;
+const updateEnd = (pages) => {
+  if (pages.length === 0){
+    __WEBPACK_IMPORTED_MODULE_0__ui_utils__["c" /* changeColor */]("end_input", "red");
+  } else {
+    targetPages = pages;
+    __WEBPACK_IMPORTED_MODULE_0__ui_utils__["c" /* changeColor */]("end_input", "black");
+  }
 };
-/* unused harmony export ResizeCanvas */
-
 
 
 /***/ }),
@@ -241,7 +227,7 @@ const hideHeader = () => {
   top += "px";
   header.style.top = top;
 };
-/* harmony export (immutable) */ __webpack_exports__["b"] = hideHeader;
+/* harmony export (immutable) */ __webpack_exports__["d"] = hideHeader;
 
 
 const showHeader = () => {
@@ -261,7 +247,20 @@ const addInput = () => {
   startForm.append(endInput);
   endInput.focus();
 };
-/* harmony export (immutable) */ __webpack_exports__["a"] = addInput;
+/* harmony export (immutable) */ __webpack_exports__["b"] = addInput;
+
+
+const ResizeCanvas = (canvas) => {
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+};
+/* harmony export (immutable) */ __webpack_exports__["a"] = ResizeCanvas;
+
+
+const changeColor = (id, color) => {
+  document.getElementById(id).style.color = color;
+};
+/* harmony export (immutable) */ __webpack_exports__["c"] = changeColor;
 
 
 
@@ -384,7 +383,7 @@ class PolyHash {
     }
 
     let addition = [title, this.currentParent];
-    let bucket = Math.floor(title.hashCode() % this.map.length);
+    let bucket = Math.floor(hashString(title) % this.map.length);
     if (this.map[bucket] === null) {
       this.map[bucket] = [];
     }
@@ -404,7 +403,7 @@ class PolyHash {
   }
   get(string) {
     let match = [];
-    let bucket = Math.floor(string.hashCode() % this.map.length);
+    let bucket = Math.floor(hashString(string) % this.map.length);
 
     if (this.map[bucket] === null) {
         return false;
@@ -422,23 +421,32 @@ class PolyHash {
     return false;
   }
 
-  includes(string) {
-    this.get(string);
+  trace(to, from = this.origin) {
+    if (!this.includes(to)) {
+      return false;
+    }
+    let parent = to;
+    let pair;
+    let trail = [];
+
+
+    while (parent !== from && parent !== this.origin) {
+      trail.push(parent);
+      pair = this.get(parent);
+      pair = pair[1];
+      parent = pair;
+    }
+    trail.push(parent);
+    return trail.reverse();
   }
 
-  // includes(string) {
-  //   let includes = false;
-  //   let bucket = Math.floor(string.hashCode() % this.map.length);
-  //
-  //   if (this.map[bucket] === null) {
-  //     return false;
-  //   }
-  //
-  //   this.map[bucket].forEach((pair) => {
-  //     if (pair[0] === string) {
-  //       includes = true;
-  //     }
-  //   });
+  includes(string) {
+    if (this.get(string) === false){
+      return false;
+    }
+
+    return true;
+  }
 
   reset(newTarget) {
     this.map = Array(5000).fill(null);
@@ -451,20 +459,15 @@ class PolyHash {
 /* harmony export (immutable) */ __webpack_exports__["a"] = PolyHash;
 
 
-
-//code from
-//http://werxltd.com/wp/2010/05/13/javascript-implementation-of-javas-string-hashcode-method/
-//slight varation to provide more variation in hashing
-
-String.prototype.hashCode = function() {
-  var hash = 0, i, chr;
-  if (this.length === 0) return hash;
-  for (i = 0; i < this.length; i++) {
-    chr   = this.charCodeAt(i);
-    hash  = ((hash << 5) - hash) + chr;
-    hash |= 0; // Convert to 32bit integer
+const hashString = (string) => {
+  var hash = 1;
+  let i = 0;
+  while (i < string.length) {
+    hash += string.charCodeAt(i);
+    i ++;
   }
-  hash = Math.floor(hash * Math.PI * 10000);
+
+  hash = Math.floor(hash * Math.PI * 100000);
   return Math.abs(hash);
 };
 
