@@ -23,8 +23,19 @@ header {
 footer {
   position: absolute;
   width: 200px;
-  bottom: 50px;
-  right: 10px;
+  bottom: 30px;
+  right: 50px;
+  text-align: right;
+}
+
+footer h2 {
+  display: inline-block;
+  border: 2px solid black;
+  border-radius: 10px;
+  padding-right: 10px;
+  margin-left: -20px;
+  padding-left: 10px;
+  text-align: left;
 }
 
 footer:hover #logos {
@@ -40,6 +51,7 @@ footer:hover #logos {
   transition: width 1s;
   height: 30px;
   margin-bottom: -10px;
+  margin-right: -10px;
 }
 
 .logo {

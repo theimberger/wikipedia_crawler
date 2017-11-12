@@ -95,8 +95,8 @@ var targetPages = [];
 
 const Start = () => {
   let canvas = document.getElementById('main');
-  __WEBPACK_IMPORTED_MODULE_0__ui_utils__["a" /* ResizeCanvas */](canvas);
-  var ctx = canvas.getContext('2d');
+  // UIUtils.ResizeCanvas(canvas);
+  // var ctx = canvas.getContext('2d');
 
   let startForm = document.getElementById('start');
   startForm.addEventListener('submit', InputListener);
@@ -106,7 +106,7 @@ const Start = () => {
 
 const GetLinks = (e) => {
   e.preventDefault();
-  __WEBPACK_IMPORTED_MODULE_0__ui_utils__["d" /* hideHeader */]();
+  __WEBPACK_IMPORTED_MODULE_0__ui_utils__["c" /* hideHeader */]();
   let query = document.getElementById('start_input');
   query.blur();
   LinkMap.add(query.value);
@@ -117,7 +117,7 @@ const GetLinks = (e) => {
 const InputListener = (e) => GetLinks(e);
 
 const AddInput = () => {
-  __WEBPACK_IMPORTED_MODULE_0__ui_utils__["b" /* addInput */]();
+  __WEBPACK_IMPORTED_MODULE_0__ui_utils__["a" /* addInput */]();
   let startForm = document.getElementById('start');
   startForm.removeEventListener('submit', InputListener);
   startForm.addEventListener('keydown', secondInput);
@@ -192,10 +192,12 @@ const Run = (pages) => {
 
   if (found) {
     console.log("FOUND IT");
-    return
+    console.log(LinkMap.trace(LinkMap.destination));
+    FetchQue.length = 0;
+    return;
   }
 
-  setTimeout(FetchQue[0], 200);
+  setTimeout(FetchQue[0], 100);
 };
 
 const RunFactory = (title) => () => {
@@ -206,11 +208,13 @@ const RunFactory = (title) => () => {
 };
 
 const updateEnd = (pages) => {
+  console.log("changed");
   if (pages.length === 0){
-    __WEBPACK_IMPORTED_MODULE_0__ui_utils__["c" /* changeColor */]("end_input", "red");
+    __WEBPACK_IMPORTED_MODULE_0__ui_utils__["b" /* changeColor */]("end_input", "red");
   } else {
     targetPages = pages;
-    __WEBPACK_IMPORTED_MODULE_0__ui_utils__["c" /* changeColor */]("end_input", "black");
+    document.getElementById("end_input").blur();
+    __WEBPACK_IMPORTED_MODULE_0__ui_utils__["b" /* changeColor */]("end_input", "black");
   }
 };
 
@@ -227,7 +231,7 @@ const hideHeader = () => {
   top += "px";
   header.style.top = top;
 };
-/* harmony export (immutable) */ __webpack_exports__["d"] = hideHeader;
+/* harmony export (immutable) */ __webpack_exports__["c"] = hideHeader;
 
 
 const showHeader = () => {
@@ -247,20 +251,20 @@ const addInput = () => {
   startForm.append(endInput);
   endInput.focus();
 };
-/* harmony export (immutable) */ __webpack_exports__["b"] = addInput;
+/* harmony export (immutable) */ __webpack_exports__["a"] = addInput;
 
 
 const ResizeCanvas = (canvas) => {
   canvas.width = window.innerWidth;
   canvas.height = window.innerHeight;
 };
-/* harmony export (immutable) */ __webpack_exports__["a"] = ResizeCanvas;
+/* unused harmony export ResizeCanvas */
 
 
 const changeColor = (id, color) => {
   document.getElementById(id).style.color = color;
 };
-/* harmony export (immutable) */ __webpack_exports__["c"] = changeColor;
+/* harmony export (immutable) */ __webpack_exports__["b"] = changeColor;
 
 
 

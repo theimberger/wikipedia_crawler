@@ -8,8 +8,8 @@ var targetPages = [];
 
 export const Start = () => {
   let canvas = document.getElementById('main');
-  UIUtils.ResizeCanvas(canvas);
-  var ctx = canvas.getContext('2d');
+  // UIUtils.ResizeCanvas(canvas);
+  // var ctx = canvas.getContext('2d');
 
   let startForm = document.getElementById('start');
   startForm.addEventListener('submit', InputListener);
@@ -103,10 +103,12 @@ const Run = (pages) => {
 
   if (found) {
     console.log("FOUND IT");
-    return
+    console.log(LinkMap.trace(LinkMap.destination));
+    FetchQue.length = 0;
+    return;
   }
 
-  setTimeout(FetchQue[0], 200);
+  setTimeout(FetchQue[0], 100);
 };
 
 const RunFactory = (title) => () => {
@@ -117,10 +119,12 @@ const RunFactory = (title) => () => {
 };
 
 const updateEnd = (pages) => {
+  console.log("changed");
   if (pages.length === 0){
     UIUtils.changeColor("end_input", "red");
   } else {
     targetPages = pages;
+    document.getElementById("end_input").blur();
     UIUtils.changeColor("end_input", "black");
   }
 };
