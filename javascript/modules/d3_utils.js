@@ -34,6 +34,7 @@ export const render = (LinkMap) => {
     count += 1;
   }
 
+
   if (LinkMap.get(LinkMap.destination)){
     drawTree();
   }
@@ -55,7 +56,7 @@ const drawTree = () => {
 
 
 
-  var tree = d3.tree().size([bodyHeight -100, bodyWidth - 100]);
+  var tree = d3.tree().size([bodyHeight -100, bodyWidth - 500]);
   var root = d3.hierarchy(data);
   //
   tree(root);

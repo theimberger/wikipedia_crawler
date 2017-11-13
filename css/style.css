@@ -61,9 +61,11 @@ footer:hover #logos {
 form {
   position: absolute;
   bottom: -90px;
+  background: none;
 }
 
 input {
+  background: none;
   margin-top: 10px;
   outline: none;
   padding-bottom: 2px;
@@ -76,10 +78,12 @@ ul {
   position: absolute;
   font-size: 9px;
   width: 300px;
-  top: 100px;
+  bottom: 150px;
   right: 10px;
   height: 500px;
   overflow: scroll;
+  display: flex;
+  flex-direction: column-reverse;
 }
 
 

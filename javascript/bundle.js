@@ -9393,6 +9393,11 @@ const filterPages = (pages) => {
       i ++;
       continue;
     }
+    if (targetPages.includes(pages[i])) {
+      filtered.push(pages[i]);
+      i ++;
+      continue;
+    }
     if (pages[i].includes(LinkMap.destination) &&
         LinkMap.destination.length > 4) {
 
@@ -9758,6 +9763,7 @@ const render = (LinkMap) => {
     count += 1;
   }
 
+
   if (LinkMap.get(LinkMap.destination)){
     drawTree();
   }
@@ -9781,7 +9787,7 @@ const drawTree = () => {
 
 
 
-  var tree = __WEBPACK_IMPORTED_MODULE_0_d3__["c" /* tree */]().size([bodyHeight -100, bodyWidth - 100]);
+  var tree = __WEBPACK_IMPORTED_MODULE_0_d3__["c" /* tree */]().size([bodyHeight -100, bodyWidth - 500]);
   var root = __WEBPACK_IMPORTED_MODULE_0_d3__["a" /* hierarchy */](data);
   //
   tree(root);

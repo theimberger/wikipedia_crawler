@@ -69,6 +69,11 @@ const filterPages = (pages) => {
       i ++;
       continue;
     }
+    if (targetPages.includes(pages[i])) {
+      filtered.push(pages[i]);
+      i ++;
+      continue;
+    }
     if (pages[i].includes(LinkMap.destination) &&
         LinkMap.destination.length > 4) {
 
