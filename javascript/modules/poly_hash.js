@@ -7,14 +7,18 @@ export default class PolyHash {
     this.count = 0;
   }
 
-  add(title) {
+  add(title, parent = this.currentParent, children = []) {
     if (this.origin === "") {
       this.origin = title;
       this.currentParent = title;
-      return;
     }
 
-    let addition = [title, this.currentParent];
+    let addition = {
+      title: title,
+      parent: parent,
+      children: children
+    };
+
     let bucket = Math.floor(hashString(title) % this.map.length);
     if (this.map[bucket] === null) {
       this.map[bucket] = [];
@@ -34,20 +38,20 @@ export default class PolyHash {
     this.currentParent = parent;
   }
   get(string) {
-    let match = [];
+    let match = {};
     let bucket = Math.floor(hashString(string) % this.map.length);
 
     if (this.map[bucket] === null) {
         return false;
     }
 
-    this.map[bucket].forEach((pair) => {
-      if (pair[0] === string) {
-        match = pair;
+    this.map[bucket].forEach((node) => {
+      if (node.title === string) {
+        match = node;
       }
     });
 
-    if (match.length === 2){
+    if (match.title === string){
       return match;
     }
     return false;
@@ -65,7 +69,7 @@ export default class PolyHash {
     while (parent !== from && parent !== this.origin) {
       trail.push(parent);
       pair = this.get(parent);
-      pair = pair[1];
+      pair = pair.parent;
       parent = pair;
     }
     trail.push(parent);
@@ -76,7 +80,6 @@ export default class PolyHash {
     if (this.get(string) === false){
       return false;
     }
-
     return true;
   }
 

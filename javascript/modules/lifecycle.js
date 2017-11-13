@@ -1,6 +1,7 @@
 import * as UIUtils from './ui_utils';
 import * as AjaxUtils from './ajax_utils';
 import PolyHash from './poly_hash';
+import * as D3Utils from './d3_utils';
 
 const LinkMap = new PolyHash();
 const FetchQue = [];
@@ -13,6 +14,7 @@ export const Start = () => {
 
   let startForm = document.getElementById('start');
   startForm.addEventListener('submit', InputListener);
+  D3Utils.Draw();
 };
 
 const GetLinks = (e) => {
@@ -88,6 +90,7 @@ const Run = (pages) => {
   var Test = document.getElementById('test');
   let found = false;
   pages = filterPages(pages);
+  LinkMap.get(LinkMap.currentParent).children = pages;
   Test.append(pages + " ");
 
   let i = 0;
@@ -105,6 +108,7 @@ const Run = (pages) => {
     console.log("FOUND IT");
     console.log(LinkMap.trace(LinkMap.destination));
     FetchQue.length = 0;
+    debugger
     return;
   }
 

@@ -31,10 +31,9 @@ footer {
 footer h2 {
   display: inline-block;
   border: 2px solid black;
-  border-radius: 10px;
-  padding-right: 10px;
+  border-radius: 20px;
+  padding: 2px 10px;
   margin-left: -20px;
-  padding-left: 10px;
   text-align: left;
 }
 
@@ -50,12 +49,12 @@ footer:hover #logos {
   -webkit-transition: width 1s;
   transition: width 1s;
   height: 30px;
-  margin-bottom: -10px;
+  margin-bottom: -9px;
   margin-right: -10px;
 }
 
 .logo {
-  height: 1em;
+  height: 25px;
   cursor: pointer;
 }
 
