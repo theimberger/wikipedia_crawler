@@ -14,7 +14,6 @@ export const Start = () => {
 
   let startForm = document.getElementById('start');
   startForm.addEventListener('submit', InputListener);
-  D3Utils.Draw();
 };
 
 const GetLinks = (e) => {
@@ -108,10 +107,11 @@ const Run = (pages) => {
     console.log("FOUND IT");
     console.log(LinkMap.trace(LinkMap.destination));
     FetchQue.length = 0;
-    debugger
+    D3Utils.render(LinkMap);
     return;
   }
 
+  D3Utils.render(LinkMap);
   setTimeout(FetchQue[0], 100);
 };
 
