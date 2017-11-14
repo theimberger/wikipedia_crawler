@@ -14,7 +14,7 @@ export const render = (LinkMap) => {
     data["children"] = LinkMap.get(LinkMap.origin).children.map(
       (child) => ({name: child})
     );
-    count += 1
+    count += 1;
   } else {
     let parentArray = LinkMap.trace(LinkMap.currentParent);
     let parent = data.children;
@@ -35,13 +35,11 @@ export const render = (LinkMap) => {
   }
 
 
-  if (LinkMap.get(LinkMap.destination)){
-    drawTree();
-  }
+
 
 };
 
-const drawTree = () => {
+export const drawTree = () => {
   //this function and associated css are heavily based on this codepen
   // https://codepen.io/netkuy/pen/qZGdoj
   // by Yuki Kodama
@@ -64,16 +62,16 @@ const drawTree = () => {
   // root.y0 = bodyHeight/2;
 
   var link = canvas.selectAll('.link')
-  .data(root.descendants().slice(1))
-  .enter()
-  .append('path')
-  .attr('class', 'link')
-  .attr('d', function(d) {
-    return "M" + d.y + "," + d.x
-    + "C" + (d.y + d.parent.y) / 2 + "," + d.x
-    + " " + (d.y + d.parent.y) / 2 + "," + d.parent.x
-    + " " + d.parent.y + "," + d.parent.x;
-  });
+    .data(root.descendants().slice(1))
+    .enter()
+    .append('path')
+    .attr('class', 'link')
+    .attr('d', function(d) {
+      return "M" + d.y + "," + d.x
+      + "C" + (d.y + d.parent.y) / 2 + "," + d.x
+      + " " + (d.y + d.parent.y) / 2 + "," + d.parent.x
+      + " " + d.parent.y + "," + d.parent.x;
+    });
 
   var node = canvas.selectAll('.node')
     .data(root.descendants())
@@ -82,15 +80,27 @@ const drawTree = () => {
     .attr('class', function(d) {
       return "node " + (d.children ? "node-internal" : "node-leaf");
     })
-    .attr("transform", function(d) { return "translate(" + d.y + "," + d.x + ")"; });
+    .attr("transform", function(d) { return "translate(" + d.y + "," + d.x + ")"; })
+    .on("mouseover", function(d) {
+      d3.select(this).raise()
+      .append("text")
+        .attr('class', 'node_name')
+        .attr("dy", 3)
+        .attr("x", function(d) { return d.children ? -8 : 8; })
+        .style("text-anchor", function(d) { return d.children ? "end" : "start"; })
+        .text(function(d) { return d.data.name; });
+    })
+    .on("mouseout", function(d){
+      d3.selectAll("text.node_name").remove();
+    });
 
   node.append("circle")
-  .attr("r", 2.5);
+    .attr("r", 2);
 
-  node.append("text")
-  .attr("dy", 3)
-  .attr("x", function(d) { return d.children ? -8 : 8; })
-  .style("text-anchor", function(d) { return d.children ? "end" : "start"; })
-  .text(function(d) { return d.data.name; });
+  // node.append("text")
+    // .attr("dy", 3)
+    // .attr("x", function(d) { return d.children ? -8 : 8; })
+    // .style("text-anchor", function(d) { return d.children ? "end" : "start"; })
+    // .text(function(d) { return d.data.name; });
 
 };

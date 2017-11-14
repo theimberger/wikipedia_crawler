@@ -149,17 +149,17 @@ function haversin(x) {
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__src_select__ = __webpack_require__(205);
 /* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "f", function() { return __WEBPACK_IMPORTED_MODULE_6__src_select__["a"]; });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__src_selectAll__ = __webpack_require__(233);
-/* unused harmony reexport selectAll */
+/* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "g", function() { return __WEBPACK_IMPORTED_MODULE_7__src_selectAll__["a"]; });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_8__src_selection_index__ = __webpack_require__(4);
-/* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "g", function() { return __WEBPACK_IMPORTED_MODULE_8__src_selection_index__["b"]; });
+/* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "h", function() { return __WEBPACK_IMPORTED_MODULE_8__src_selection_index__["b"]; });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_9__src_selector__ = __webpack_require__(56);
-/* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "h", function() { return __WEBPACK_IMPORTED_MODULE_9__src_selector__["a"]; });
+/* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "i", function() { return __WEBPACK_IMPORTED_MODULE_9__src_selector__["a"]; });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_10__src_selectorAll__ = __webpack_require__(103);
-/* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "i", function() { return __WEBPACK_IMPORTED_MODULE_10__src_selectorAll__["a"]; });
+/* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "j", function() { return __WEBPACK_IMPORTED_MODULE_10__src_selectorAll__["a"]; });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_11__src_selection_style__ = __webpack_require__(106);
-/* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "j", function() { return __WEBPACK_IMPORTED_MODULE_11__src_selection_style__["b"]; });
+/* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "k", function() { return __WEBPACK_IMPORTED_MODULE_11__src_selection_style__["b"]; });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_12__src_touch__ = __webpack_require__(234);
-/* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "k", function() { return __WEBPACK_IMPORTED_MODULE_12__src_touch__["a"]; });
+/* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "l", function() { return __WEBPACK_IMPORTED_MODULE_12__src_touch__["a"]; });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_13__src_touches__ = __webpack_require__(235);
 /* unused harmony reexport touches */
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_14__src_window__ = __webpack_require__(57);
@@ -936,14 +936,14 @@ function Transition(groups, parents, name, id) {
 }
 
 function transition(name) {
-  return Object(__WEBPACK_IMPORTED_MODULE_0_d3_selection__["g" /* selection */])().transition(name);
+  return Object(__WEBPACK_IMPORTED_MODULE_0_d3_selection__["h" /* selection */])().transition(name);
 }
 
 function newId() {
   return ++id;
 }
 
-var selection_prototype = __WEBPACK_IMPORTED_MODULE_0_d3_selection__["g" /* selection */].prototype;
+var selection_prototype = __WEBPACK_IMPORTED_MODULE_0_d3_selection__["h" /* selection */].prototype;
 
 Transition.prototype = transition.prototype = {
   constructor: Transition,
@@ -9342,7 +9342,7 @@ const Start = () => {
 
 const GetLinks = (e) => {
   e.preventDefault();
-  __WEBPACK_IMPORTED_MODULE_0__ui_utils__["c" /* hideHeader */]();
+  __WEBPACK_IMPORTED_MODULE_0__ui_utils__["d" /* hideHeader */]();
   let query = document.getElementById('start_input');
   query.blur();
   LinkMap.add(query.value);
@@ -9415,11 +9415,10 @@ const filterPages = (pages) => {
 };
 
 const Run = (pages) => {
-  var Test = document.getElementById('test');
-  let found = false;
+  var test = document.getElementById('test');
   pages = filterPages(pages);
   LinkMap.get(LinkMap.currentParent).children = pages;
-  Test.append(pages + " ");
+  __WEBPACK_IMPORTED_MODULE_0__ui_utils__["b" /* addLi */](LinkMap.currentParent, pages);
 
   let i = 0;
 
@@ -9427,20 +9426,21 @@ const Run = (pages) => {
     LinkMap.add(pages[i]);
     FetchQue.push(RunFactory(pages[i]));
     if (pages[i].toLowerCase() === LinkMap.destination.toLowerCase()) {
-      found = true;
+      FetchQue.unshift(RunFactory(pages[i]));
     }
     i ++;
   }
 
-  if (found) {
+  if (LinkMap.currentParent.toLowerCase()
+    === LinkMap.destination.toLowerCase()) {
     console.log("FOUND IT");
     console.log(LinkMap.trace(LinkMap.destination));
     FetchQue.length = 0;
-    __WEBPACK_IMPORTED_MODULE_3__d3_utils__["a" /* render */](LinkMap);
+    __WEBPACK_IMPORTED_MODULE_3__d3_utils__["a" /* drawTree */]();
     return;
   }
 
-  __WEBPACK_IMPORTED_MODULE_3__d3_utils__["a" /* render */](LinkMap);
+  __WEBPACK_IMPORTED_MODULE_3__d3_utils__["b" /* render */](LinkMap);
   setTimeout(FetchQue[0], 100);
 };
 
@@ -9454,11 +9454,11 @@ const RunFactory = (title) => () => {
 const updateEnd = (pages) => {
   console.log("changed");
   if (pages.length === 0){
-    __WEBPACK_IMPORTED_MODULE_0__ui_utils__["b" /* changeColor */]("end_input", "red");
+    __WEBPACK_IMPORTED_MODULE_0__ui_utils__["c" /* changeColor */]("end_input", "red");
   } else {
     targetPages = pages;
     document.getElementById("end_input").blur();
-    __WEBPACK_IMPORTED_MODULE_0__ui_utils__["b" /* changeColor */]("end_input", "black");
+    __WEBPACK_IMPORTED_MODULE_0__ui_utils__["c" /* changeColor */]("end_input", "black");
   }
 };
 
@@ -9475,7 +9475,7 @@ const hideHeader = () => {
   top += "px";
   header.style.top = top;
 };
-/* harmony export (immutable) */ __webpack_exports__["c"] = hideHeader;
+/* harmony export (immutable) */ __webpack_exports__["d"] = hideHeader;
 
 
 const showHeader = () => {
@@ -9506,7 +9506,19 @@ const addInput = () => {
 const changeColor = (id, color) => {
   document.getElementById(id).style.color = color;
 };
-/* harmony export (immutable) */ __webpack_exports__["b"] = changeColor;
+/* harmony export (immutable) */ __webpack_exports__["c"] = changeColor;
+
+
+const addLi = (parent, pages) => {
+  let newPages = document.createElement("li");
+  let bold = document.createElement("span");
+  bold.classList.add("bold");
+  bold.append(parent);
+  newPages.append(bold);
+  newPages.append(pages);
+  document.getElementById('test').append(newPages);
+};
+/* harmony export (immutable) */ __webpack_exports__["b"] = addLi;
 
 
 
@@ -9743,7 +9755,7 @@ const render = (LinkMap) => {
     data["children"] = LinkMap.get(LinkMap.origin).children.map(
       (child) => ({name: child})
     );
-    count += 1
+    count += 1;
   } else {
     let parentArray = LinkMap.trace(LinkMap.currentParent);
     let parent = data.children;
@@ -9764,12 +9776,10 @@ const render = (LinkMap) => {
   }
 
 
-  if (LinkMap.get(LinkMap.destination)){
-    drawTree();
-  }
+
 
 };
-/* harmony export (immutable) */ __webpack_exports__["a"] = render;
+/* harmony export (immutable) */ __webpack_exports__["b"] = render;
 
 
 const drawTree = () => {
@@ -9787,7 +9797,7 @@ const drawTree = () => {
 
 
 
-  var tree = __WEBPACK_IMPORTED_MODULE_0_d3__["c" /* tree */]().size([bodyHeight -100, bodyWidth - 500]);
+  var tree = __WEBPACK_IMPORTED_MODULE_0_d3__["d" /* tree */]().size([bodyHeight -100, bodyWidth - 500]);
   var root = __WEBPACK_IMPORTED_MODULE_0_d3__["a" /* hierarchy */](data);
   //
   tree(root);
@@ -9795,16 +9805,16 @@ const drawTree = () => {
   // root.y0 = bodyHeight/2;
 
   var link = canvas.selectAll('.link')
-  .data(root.descendants().slice(1))
-  .enter()
-  .append('path')
-  .attr('class', 'link')
-  .attr('d', function(d) {
-    return "M" + d.y + "," + d.x
-    + "C" + (d.y + d.parent.y) / 2 + "," + d.x
-    + " " + (d.y + d.parent.y) / 2 + "," + d.parent.x
-    + " " + d.parent.y + "," + d.parent.x;
-  });
+    .data(root.descendants().slice(1))
+    .enter()
+    .append('path')
+    .attr('class', 'link')
+    .attr('d', function(d) {
+      return "M" + d.y + "," + d.x
+      + "C" + (d.y + d.parent.y) / 2 + "," + d.x
+      + " " + (d.y + d.parent.y) / 2 + "," + d.parent.x
+      + " " + d.parent.y + "," + d.parent.x;
+    });
 
   var node = canvas.selectAll('.node')
     .data(root.descendants())
@@ -9813,18 +9823,32 @@ const drawTree = () => {
     .attr('class', function(d) {
       return "node " + (d.children ? "node-internal" : "node-leaf");
     })
-    .attr("transform", function(d) { return "translate(" + d.y + "," + d.x + ")"; });
+    .attr("transform", function(d) { return "translate(" + d.y + "," + d.x + ")"; })
+    .on("mouseover", function(d) {
+      __WEBPACK_IMPORTED_MODULE_0_d3__["b" /* select */](this).raise()
+      .append("text")
+        .attr('class', 'node_name')
+        .attr("dy", 3)
+        .attr("x", function(d) { return d.children ? -8 : 8; })
+        .style("text-anchor", function(d) { return d.children ? "end" : "start"; })
+        .text(function(d) { return d.data.name; });
+    })
+    .on("mouseout", function(d){
+      __WEBPACK_IMPORTED_MODULE_0_d3__["c" /* selectAll */]("text.node_name").remove();
+    });
 
   node.append("circle")
-  .attr("r", 2.5);
+    .attr("r", 2);
 
-  node.append("text")
-  .attr("dy", 3)
-  .attr("x", function(d) { return d.children ? -8 : 8; })
-  .style("text-anchor", function(d) { return d.children ? "end" : "start"; })
-  .text(function(d) { return d.data.name; });
+  // node.append("text")
+    // .attr("dy", 3)
+    // .attr("x", function(d) { return d.children ? -8 : 8; })
+    // .style("text-anchor", function(d) { return d.children ? "end" : "start"; })
+    // .text(function(d) { return d.data.name; });
 
 };
+/* harmony export (immutable) */ __webpack_exports__["a"] = drawTree;
+
 
 
 /***/ }),
@@ -9862,7 +9886,7 @@ const drawTree = () => {
 /* unused harmony namespace reexport */
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_14_d3_hierarchy__ = __webpack_require__(356);
 /* harmony namespace reexport (by used) */ __webpack_require__.d(__webpack_exports__, "a", function() { return __WEBPACK_IMPORTED_MODULE_14_d3_hierarchy__["a"]; });
-/* harmony namespace reexport (by used) */ __webpack_require__.d(__webpack_exports__, "c", function() { return __WEBPACK_IMPORTED_MODULE_14_d3_hierarchy__["b"]; });
+/* harmony namespace reexport (by used) */ __webpack_require__.d(__webpack_exports__, "d", function() { return __WEBPACK_IMPORTED_MODULE_14_d3_hierarchy__["b"]; });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_15_d3_interpolate__ = __webpack_require__(5);
 /* unused harmony namespace reexport */
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_16_d3_path__ = __webpack_require__(13);
@@ -9881,6 +9905,7 @@ const drawTree = () => {
 /* unused harmony namespace reexport */
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_23_d3_selection__ = __webpack_require__(1);
 /* harmony namespace reexport (by used) */ __webpack_require__.d(__webpack_exports__, "b", function() { return __WEBPACK_IMPORTED_MODULE_23_d3_selection__["f"]; });
+/* harmony namespace reexport (by used) */ __webpack_require__.d(__webpack_exports__, "c", function() { return __WEBPACK_IMPORTED_MODULE_23_d3_selection__["g"]; });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_24_d3_shape__ = __webpack_require__(433);
 /* unused harmony namespace reexport */
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_25_d3_time__ = __webpack_require__(43);
@@ -11366,7 +11391,7 @@ function defaultTouchable() {
         n = touches.length, i, gesture;
 
     for (i = 0; i < n; ++i) {
-      if (gesture = beforestart(touches[i].identifier, c, __WEBPACK_IMPORTED_MODULE_1_d3_selection__["k" /* touch */], this, arguments)) {
+      if (gesture = beforestart(touches[i].identifier, c, __WEBPACK_IMPORTED_MODULE_1_d3_selection__["l" /* touch */], this, arguments)) {
         Object(__WEBPACK_IMPORTED_MODULE_3__noevent__["b" /* nopropagation */])();
         gesture("start");
       }
@@ -12299,7 +12324,7 @@ function dispatchFunction(type, params) {
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__selection_index__ = __webpack_require__(4);
 
 
-/* unused harmony default export */ var _unused_webpack_default_export = (function(selector) {
+/* harmony default export */ __webpack_exports__["a"] = (function(selector) {
   return typeof selector === "string"
       ? new __WEBPACK_IMPORTED_MODULE_0__selection_index__["a" /* Selection */]([document.querySelectorAll(selector)], [document.documentElement])
       : new __WEBPACK_IMPORTED_MODULE_0__selection_index__["a" /* Selection */]([selector == null ? [] : selector], __WEBPACK_IMPORTED_MODULE_0__selection_index__["c" /* root */]);
@@ -12959,8 +12984,8 @@ var cubehelixLong = cubehelix(__WEBPACK_IMPORTED_MODULE_1__color__["a" /* defaul
 
 
 
-__WEBPACK_IMPORTED_MODULE_0_d3_selection__["g" /* selection */].prototype.interrupt = __WEBPACK_IMPORTED_MODULE_1__interrupt__["a" /* default */];
-__WEBPACK_IMPORTED_MODULE_0_d3_selection__["g" /* selection */].prototype.transition = __WEBPACK_IMPORTED_MODULE_2__transition__["a" /* default */];
+__WEBPACK_IMPORTED_MODULE_0_d3_selection__["h" /* selection */].prototype.interrupt = __WEBPACK_IMPORTED_MODULE_1__interrupt__["a" /* default */];
+__WEBPACK_IMPORTED_MODULE_0_d3_selection__["h" /* selection */].prototype.transition = __WEBPACK_IMPORTED_MODULE_2__transition__["a" /* default */];
 
 
 /***/ }),
@@ -13408,7 +13433,7 @@ function removeFunction(id) {
   var name = this._name,
       id = this._id;
 
-  if (typeof select !== "function") select = Object(__WEBPACK_IMPORTED_MODULE_0_d3_selection__["h" /* selector */])(select);
+  if (typeof select !== "function") select = Object(__WEBPACK_IMPORTED_MODULE_0_d3_selection__["i" /* selector */])(select);
 
   for (var groups = this._groups, m = groups.length, subgroups = new Array(m), j = 0; j < m; ++j) {
     for (var group = groups[j], n = group.length, subgroup = subgroups[j] = new Array(n), node, subnode, i = 0; i < n; ++i) {
@@ -13440,7 +13465,7 @@ function removeFunction(id) {
   var name = this._name,
       id = this._id;
 
-  if (typeof select !== "function") select = Object(__WEBPACK_IMPORTED_MODULE_0_d3_selection__["i" /* selectorAll */])(select);
+  if (typeof select !== "function") select = Object(__WEBPACK_IMPORTED_MODULE_0_d3_selection__["j" /* selectorAll */])(select);
 
   for (var groups = this._groups, m = groups.length, subgroups = [], parents = [], j = 0; j < m; ++j) {
     for (var group = groups[j], n = group.length, node, i = 0; i < n; ++i) {
@@ -13468,7 +13493,7 @@ function removeFunction(id) {
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_d3_selection__ = __webpack_require__(1);
 
 
-var Selection = __WEBPACK_IMPORTED_MODULE_0_d3_selection__["g" /* selection */].prototype.constructor;
+var Selection = __WEBPACK_IMPORTED_MODULE_0_d3_selection__["h" /* selection */].prototype.constructor;
 
 /* harmony default export */ __webpack_exports__["a"] = (function() {
   return new Selection(this._groups, this._parents);
@@ -13494,8 +13519,8 @@ function styleRemove(name, interpolate) {
       value10,
       interpolate0;
   return function() {
-    var value0 = Object(__WEBPACK_IMPORTED_MODULE_1_d3_selection__["j" /* style */])(this, name),
-        value1 = (this.style.removeProperty(name), Object(__WEBPACK_IMPORTED_MODULE_1_d3_selection__["j" /* style */])(this, name));
+    var value0 = Object(__WEBPACK_IMPORTED_MODULE_1_d3_selection__["k" /* style */])(this, name),
+        value1 = (this.style.removeProperty(name), Object(__WEBPACK_IMPORTED_MODULE_1_d3_selection__["k" /* style */])(this, name));
     return value0 === value1 ? null
         : value0 === value00 && value1 === value10 ? interpolate0
         : interpolate0 = interpolate(value00 = value0, value10 = value1);
@@ -13512,7 +13537,7 @@ function styleConstant(name, interpolate, value1) {
   var value00,
       interpolate0;
   return function() {
-    var value0 = Object(__WEBPACK_IMPORTED_MODULE_1_d3_selection__["j" /* style */])(this, name);
+    var value0 = Object(__WEBPACK_IMPORTED_MODULE_1_d3_selection__["k" /* style */])(this, name);
     return value0 === value1 ? null
         : value0 === value00 ? interpolate0
         : interpolate0 = interpolate(value00 = value0, value1);
@@ -13524,9 +13549,9 @@ function styleFunction(name, interpolate, value) {
       value10,
       interpolate0;
   return function() {
-    var value0 = Object(__WEBPACK_IMPORTED_MODULE_1_d3_selection__["j" /* style */])(this, name),
+    var value0 = Object(__WEBPACK_IMPORTED_MODULE_1_d3_selection__["k" /* style */])(this, name),
         value1 = value(this);
-    if (value1 == null) value1 = (this.style.removeProperty(name), Object(__WEBPACK_IMPORTED_MODULE_1_d3_selection__["j" /* style */])(this, name));
+    if (value1 == null) value1 = (this.style.removeProperty(name), Object(__WEBPACK_IMPORTED_MODULE_1_d3_selection__["k" /* style */])(this, name));
     return value0 === value1 ? null
         : value0 === value00 && value1 === value10 ? interpolate0
         : interpolate0 = interpolate(value00 = value0, value10 = value1);
@@ -22830,7 +22855,7 @@ function defaultTouchable() {
 
     Object(__WEBPACK_IMPORTED_MODULE_8__noevent__["b" /* nopropagation */])();
     for (i = 0; i < n; ++i) {
-      t = touches[i], p = Object(__WEBPACK_IMPORTED_MODULE_3_d3_selection__["k" /* touch */])(this, touches, t.identifier);
+      t = touches[i], p = Object(__WEBPACK_IMPORTED_MODULE_3_d3_selection__["l" /* touch */])(this, touches, t.identifier);
       p = [p, this.__zoom.invert(p), t.identifier];
       if (!g.touch0) g.touch0 = p, started = true;
       else if (!g.touch1) g.touch1 = p;
@@ -22862,7 +22887,7 @@ function defaultTouchable() {
     Object(__WEBPACK_IMPORTED_MODULE_8__noevent__["a" /* default */])();
     if (touchstarting) touchstarting = clearTimeout(touchstarting);
     for (i = 0; i < n; ++i) {
-      t = touches[i], p = Object(__WEBPACK_IMPORTED_MODULE_3_d3_selection__["k" /* touch */])(this, touches, t.identifier);
+      t = touches[i], p = Object(__WEBPACK_IMPORTED_MODULE_3_d3_selection__["l" /* touch */])(this, touches, t.identifier);
       if (g.touch0 && g.touch0[2] === t.identifier) g.touch0[0] = p;
       else if (g.touch1 && g.touch1[2] === t.identifier) g.touch1[0] = p;
     }

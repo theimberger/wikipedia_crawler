@@ -30,3 +30,13 @@ export const addInput = () => {
 export const changeColor = (id, color) => {
   document.getElementById(id).style.color = color;
 };
+
+export const addLi = (parent, pages) => {
+  let newPages = document.createElement("li");
+  let bold = document.createElement("span");
+  bold.classList.add("bold");
+  bold.append(parent);
+  newPages.append(bold);
+  newPages.append(pages);
+  document.getElementById('test').append(newPages);
+};

@@ -91,11 +91,10 @@ const filterPages = (pages) => {
 };
 
 const Run = (pages) => {
-  var Test = document.getElementById('test');
-  let found = false;
+  var test = document.getElementById('test');
   pages = filterPages(pages);
   LinkMap.get(LinkMap.currentParent).children = pages;
-  Test.append(pages + " ");
+  UIUtils.addLi(LinkMap.currentParent, pages);
 
   let i = 0;
 
@@ -103,16 +102,17 @@ const Run = (pages) => {
     LinkMap.add(pages[i]);
     FetchQue.push(RunFactory(pages[i]));
     if (pages[i].toLowerCase() === LinkMap.destination.toLowerCase()) {
-      found = true;
+      FetchQue.unshift(RunFactory(pages[i]));
     }
     i ++;
   }
 
-  if (found) {
+  if (LinkMap.currentParent.toLowerCase()
+    === LinkMap.destination.toLowerCase()) {
     console.log("FOUND IT");
     console.log(LinkMap.trace(LinkMap.destination));
     FetchQue.length = 0;
-    D3Utils.render(LinkMap);
+    D3Utils.drawTree();
     return;
   }
 

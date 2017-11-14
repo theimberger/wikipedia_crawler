@@ -83,18 +83,22 @@ ul {
   height: 500px;
   overflow: scroll;
   display: flex;
-  flex-direction: column-reverse;
+  flex-direction: column;
+  justify-content: flex-end;
+  color: #aaa;
 }
 
+li {
+  list-style-type: none;
+}
 
-
-
-
-
-
+.bold {
+  color: black;
+}
+/*styles below are from a codepen, see https://codepen.io/netkuy/pen/qZGdoj*/
 
 .node circle {
-  fill: #999;
+  fill: black;
 }
 
 .node text {
@@ -113,5 +117,5 @@ ul {
   fill: none;
   stroke: #555;
   stroke-opacity: 0.4;
-  stroke-width: 1.5px;
+  stroke-width: 1px;
 }
