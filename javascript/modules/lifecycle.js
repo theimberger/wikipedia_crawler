@@ -45,6 +45,7 @@ const secondInput = (e) => {
 
   if (first.value !== LinkMap.origin) {
     LinkMap.reset(first.value);
+    FetchQue.length = 0;
     AjaxUtils.fetchWikiPage(first.value, Run);
     return;
   }
@@ -112,7 +113,7 @@ const Run = (pages) => {
     console.log("FOUND IT");
     console.log(LinkMap.trace(LinkMap.destination));
     FetchQue.length = 0;
-    D3Utils.drawTree();
+    D3Utils.drawTree(LinkMap);
     return;
   }
 

@@ -9369,6 +9369,7 @@ const secondInput = (e) => {
 
   if (first.value !== LinkMap.origin) {
     LinkMap.reset(first.value);
+    FetchQue.length = 0;
     __WEBPACK_IMPORTED_MODULE_1__ajax_utils__["a" /* fetchWikiPage */](first.value, Run);
     return;
   }
@@ -9436,7 +9437,7 @@ const Run = (pages) => {
     console.log("FOUND IT");
     console.log(LinkMap.trace(LinkMap.destination));
     FetchQue.length = 0;
-    __WEBPACK_IMPORTED_MODULE_3__d3_utils__["a" /* drawTree */]();
+    __WEBPACK_IMPORTED_MODULE_3__d3_utils__["a" /* drawTree */](LinkMap);
     return;
   }
 
@@ -9626,7 +9627,7 @@ const pageDNE = (response) => {
 "use strict";
 class PolyHash {
   constructor() {
-    this.map = Array(5000).fill(null);
+    this.map = Array(1000).fill(null);
     this.origin = "";
     this.destination = "";
     this.currentParent = "";
@@ -9747,7 +9748,9 @@ var data = {
   name: "",
   children: []
 };
-var count = 0;
+var count = 0,
+    tree,
+    canvas;
 
 const render = (LinkMap) => {
   if (data.name === "") {
@@ -9756,6 +9759,7 @@ const render = (LinkMap) => {
       (child) => ({name: child})
     );
     count += 1;
+    // drawTree();
   } else {
     let parentArray = LinkMap.trace(LinkMap.currentParent);
     let parent = data.children;
@@ -9763,11 +9767,12 @@ const render = (LinkMap) => {
     parent = data.children.filter(
       (child) => child.name === parentArray[1])[0];
 
-    while (i < parentArray.length - 1) {
-      // debugger
-      parent = parent.children.filter(
-        (child) => child.name === parentArray[i])[0];
-      i ++;
+    while (i < parentArray.length) {
+      if (parent.children.length > 0) {
+        parent = parent.children.filter(
+          (child) => child.name === parentArray[i])[0];
+          i ++;
+      }
     }
     parent.children = LinkMap.get(parent.name).children.map(
       (child) => ({name: child})
@@ -9782,27 +9787,25 @@ const render = (LinkMap) => {
 /* harmony export (immutable) */ __webpack_exports__["b"] = render;
 
 
-const drawTree = () => {
+const drawTree = (LinkMap) => {
   //this function and associated css are heavily based on this codepen
   // https://codepen.io/netkuy/pen/qZGdoj
   // by Yuki Kodama
 
 
-  var canvas = __WEBPACK_IMPORTED_MODULE_0_d3__["b" /* select */]("body").append("svg")
+  canvas = __WEBPACK_IMPORTED_MODULE_0_d3__["b" /* select */]("body").append("svg")
     .attr("width", bodyWidth)
     .attr("height", bodyHeight)
     .append('g')
-    .attr('transform', 'translate(50, 50)')
+    .attr('transform', 'translate(100, 100)')
     .attr('class', 'main');
 
 
 
-  var tree = __WEBPACK_IMPORTED_MODULE_0_d3__["d" /* tree */]().size([bodyHeight -100, bodyWidth - 500]);
+  tree = __WEBPACK_IMPORTED_MODULE_0_d3__["d" /* tree */]().size([bodyHeight -150, bodyWidth - 500]);
   var root = __WEBPACK_IMPORTED_MODULE_0_d3__["a" /* hierarchy */](data);
-  //
+
   tree(root);
-  // root.x0 = bodyWidth/2;
-  // root.y0 = bodyHeight/2;
 
   var link = canvas.selectAll('.link')
     .data(root.descendants().slice(1))
@@ -9814,6 +9817,7 @@ const drawTree = () => {
       + "C" + (d.y + d.parent.y) / 2 + "," + d.x
       + " " + (d.y + d.parent.y) / 2 + "," + d.parent.x
       + " " + d.parent.y + "," + d.parent.x;
+
     });
 
   var node = canvas.selectAll('.node')
@@ -9840,11 +9844,16 @@ const drawTree = () => {
   node.append("circle")
     .attr("r", 2);
 
-  // node.append("text")
-    // .attr("dy", 3)
-    // .attr("x", function(d) { return d.children ? -8 : 8; })
-    // .style("text-anchor", function(d) { return d.children ? "end" : "start"; })
-    // .text(function(d) { return d.data.name; });
+  node.append("text")
+      .attr('class', 'trace')
+      .attr("dy", 3)
+      .attr("x", function(d) { return d.children ? -8 : 8; })
+      .style("text-anchor", function(d) { return d.children ? "end" : "start"; })
+      .text(function(d) {
+        if (LinkMap.trace(LinkMap.destination).includes(d.data.name)){
+          return d.data.name;
+        }
+      });
 
 };
 /* harmony export (immutable) */ __webpack_exports__["a"] = drawTree;
