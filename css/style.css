@@ -74,7 +74,7 @@ input {
   border-bottom: 1px solid gray;
 }
 
-ul {
+#test {
   position: absolute;
   font-size: 9px;
   width: 300px;
@@ -124,4 +124,55 @@ li {
   stroke: #555;
   stroke-opacity: 0.4;
   stroke-width: 1px;
+}
+
+#disam_modal {
+  display: none;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  position: fixed;
+  background: white;
+  overflow: scroll;
+}
+
+#disam_modal h2 {
+  margin: 20px auto;
+  max-width: 500px;
+  font-size: 1.2em;
+}
+
+#disam_helper {
+  text-align: left;
+  margin: auto;
+  max-width: 500px;
+  border-bottom: 1px solid lightgray;
+  font-size: 1.2em;
+  padding: 0;
+}
+
+#disam_helper li {
+  border-bottom: 1px solid lightgray;
+  padding: 10px 0;
+  cursor: pointer;
+}
+
+#close {
+  color: red;
+  font-size: 1.2em;
+  display: block;
+  text-align: center;
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  cursor: pointer;
+  height: 65px;
+  width: 70px;
+  padding-top: 5px;
+}
+
+#close:hover {
+  background-color: #eee;
+  border-radius: 50%;
 }
