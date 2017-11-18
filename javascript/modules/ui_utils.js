@@ -40,3 +40,23 @@ export const addLi = (parent, pages) => {
   newPages.append(pages);
   document.getElementById('test').append(newPages);
 };
+
+export const disamModal = (pages, callback) => {
+  console.log("fired");
+  let modal = document.getElementById("disam_modal");
+  let pageUl = document.getElementById("disam_helper");
+  modal.style.display = "inline";
+  let li;
+  pages.pop();
+  pages.forEach((page) => {
+    li = document.createElement("li");
+    pageUl.append(li);
+    li.append(page);
+  });
+  pageUl.addEventListener("click", (e) => {
+    let input = document.getElementById("end_input");
+    input.value = e.target.innerHTML;
+    modal.style.display = "none";
+    callback(e);
+  });
+};

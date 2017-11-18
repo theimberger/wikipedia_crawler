@@ -60,6 +60,7 @@ const formatResponse = (response) => {
   let pages = Object.keys(rjson.query.pages);
   pages = pages[0];
   pages = rjson.query.pages[pages].revisions[0]["*"];
+  let Wiktionary = (pages.slice(2,12).toLowerCase() === "wiktionary");
 
   pages = pages.match(/\[(.*?)\]/g).map(
     (word) => {
@@ -78,6 +79,9 @@ const formatResponse = (response) => {
       return word;
     }).filter((word) => word.length > 0);
 
+  if (Wiktionary){
+    pages.push("Wiktionary");
+  }
   return pages;
 };
 

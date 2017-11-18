@@ -2,54 +2,52 @@ import * as UIUtils from './ui_utils';
 import * as AjaxUtils from './ajax_utils';
 import PolyHash from './poly_hash';
 import * as D3Utils from './d3_utils';
+import * as BasicUtils from './basic_utils';
 
 const LinkMap = new PolyHash();
 const FetchQue = [];
 var targetPages = [];
 
 export const Start = () => {
-  let canvas = document.getElementById('main');
-  // UIUtils.ResizeCanvas(canvas);
-  // var ctx = canvas.getContext('2d');
-
   let startForm = document.getElementById('start');
-  startForm.addEventListener('submit', InputListener);
+  let close = document.getElementById("close");
+
+  close.addEventListener("click", () => {
+    document.getElementById("disam_modal").style.display = "none";
+    document.getElementById('end_input').focus();
+  });
+
+  startForm.addEventListener('keydown', InputListener);
 };
 
-const GetLinks = (e) => {
-  e.preventDefault();
-  UIUtils.hideHeader();
-  let query = document.getElementById('start_input');
-  query.blur();
-  LinkMap.add(query.value);
-  AjaxUtils.fetchWikiPage(query.value, Run);
-  AddInput();
-};
-
-const InputListener = (e) => GetLinks(e);
-
-const AddInput = () => {
-  UIUtils.addInput();
-  let startForm = document.getElementById('start');
-  startForm.removeEventListener('submit', InputListener);
-  startForm.addEventListener('keydown', secondInput);
-};
-
-const secondInput = (e) => {
-  if (e.keyCode !== 13) {
+const InputListener = (e) => {
+  if (e.keyCode !== 13 && e.type === "keydown") {
     return;
   }
   e.preventDefault();
+
   let first = document.getElementById('start_input');
+
+  if (LinkMap.origin === "" && LinkMap.destination === ""){
+    // first.value = BasicUtils.titleCase(first.value);
+    first.blur();
+    LinkMap.add(first.value);
+    UIUtils.addInput();
+    return;
+  }
+
   let second = document.getElementById('end_input');
 
   if (first.value !== LinkMap.origin) {
+    // first.value = BasicUtils.titleCase(first.value);
+    console.log(first.value);
     LinkMap.reset(first.value);
     FetchQue.length = 0;
     AjaxUtils.fetchWikiPage(first.value, Run);
     return;
   }
   if (second.value !== LinkMap.destination){
+    // second.value = BasicUtils.titleCase(second.value);
     LinkMap.destination = second.value;
     AjaxUtils.fetchWikiPage(second.value, updateEnd);
     return;
@@ -122,19 +120,26 @@ const Run = (pages) => {
 };
 
 const RunFactory = (title) => () => {
-  console.log(title);
   LinkMap.currentParent = title;
   AjaxUtils.fetchWikiPage(title, Run);
   FetchQue.shift();
 };
 
 const updateEnd = (pages) => {
-  console.log("changed");
   if (pages.length === 0){
     UIUtils.changeColor("end_input", "red");
+    return;
+  } else if (pages[pages.length - 1] === "Wiktionary") {
+    UIUtils.disamModal(pages, InputListener);
+    return;
   } else {
     targetPages = pages;
     document.getElementById("end_input").blur();
     UIUtils.changeColor("end_input", "black");
+  }
+  if (FetchQue.length === 0) {
+    let first = document.getElementById('start_input');
+    UIUtils.hideHeader();
+    AjaxUtils.fetchWikiPage(first.value, Run);
   }
 };

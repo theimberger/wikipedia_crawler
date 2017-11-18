@@ -9320,6 +9320,8 @@ document.addEventListener('DOMContentLoaded', () => {
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__ajax_utils__ = __webpack_require__(174);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__poly_hash__ = __webpack_require__(175);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__d3_utils__ = __webpack_require__(176);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__basic_utils__ = __webpack_require__(468);
+
 
 
 
@@ -9330,50 +9332,47 @@ const FetchQue = [];
 var targetPages = [];
 
 const Start = () => {
-  let canvas = document.getElementById('main');
-  // UIUtils.ResizeCanvas(canvas);
-  // var ctx = canvas.getContext('2d');
-
   let startForm = document.getElementById('start');
-  startForm.addEventListener('submit', InputListener);
+  let close = document.getElementById("close");
+
+  close.addEventListener("click", () => {
+    document.getElementById("disam_modal").style.display = "none";
+    document.getElementById('end_input').focus();
+  });
+
+  startForm.addEventListener('keydown', InputListener);
 };
 /* harmony export (immutable) */ __webpack_exports__["a"] = Start;
 
 
-const GetLinks = (e) => {
-  e.preventDefault();
-  __WEBPACK_IMPORTED_MODULE_0__ui_utils__["d" /* hideHeader */]();
-  let query = document.getElementById('start_input');
-  query.blur();
-  LinkMap.add(query.value);
-  __WEBPACK_IMPORTED_MODULE_1__ajax_utils__["a" /* fetchWikiPage */](query.value, Run);
-  AddInput();
-};
-
-const InputListener = (e) => GetLinks(e);
-
-const AddInput = () => {
-  __WEBPACK_IMPORTED_MODULE_0__ui_utils__["a" /* addInput */]();
-  let startForm = document.getElementById('start');
-  startForm.removeEventListener('submit', InputListener);
-  startForm.addEventListener('keydown', secondInput);
-};
-
-const secondInput = (e) => {
-  if (e.keyCode !== 13) {
+const InputListener = (e) => {
+  if (e.keyCode !== 13 && e.type === "keydown") {
     return;
   }
   e.preventDefault();
+
   let first = document.getElementById('start_input');
+
+  if (LinkMap.origin === "" && LinkMap.destination === ""){
+    // first.value = BasicUtils.titleCase(first.value);
+    first.blur();
+    LinkMap.add(first.value);
+    __WEBPACK_IMPORTED_MODULE_0__ui_utils__["a" /* addInput */]();
+    return;
+  }
+
   let second = document.getElementById('end_input');
 
   if (first.value !== LinkMap.origin) {
+    // first.value = BasicUtils.titleCase(first.value);
+    console.log(first.value);
     LinkMap.reset(first.value);
     FetchQue.length = 0;
     __WEBPACK_IMPORTED_MODULE_1__ajax_utils__["a" /* fetchWikiPage */](first.value, Run);
     return;
   }
   if (second.value !== LinkMap.destination){
+    // second.value = BasicUtils.titleCase(second.value);
     LinkMap.destination = second.value;
     __WEBPACK_IMPORTED_MODULE_1__ajax_utils__["a" /* fetchWikiPage */](second.value, updateEnd);
     return;
@@ -9446,20 +9445,27 @@ const Run = (pages) => {
 };
 
 const RunFactory = (title) => () => {
-  console.log(title);
   LinkMap.currentParent = title;
   __WEBPACK_IMPORTED_MODULE_1__ajax_utils__["a" /* fetchWikiPage */](title, Run);
   FetchQue.shift();
 };
 
 const updateEnd = (pages) => {
-  console.log("changed");
   if (pages.length === 0){
     __WEBPACK_IMPORTED_MODULE_0__ui_utils__["c" /* changeColor */]("end_input", "red");
+    return;
+  } else if (pages[pages.length - 1] === "Wiktionary") {
+    __WEBPACK_IMPORTED_MODULE_0__ui_utils__["d" /* disamModal */](pages, InputListener);
+    return;
   } else {
     targetPages = pages;
     document.getElementById("end_input").blur();
     __WEBPACK_IMPORTED_MODULE_0__ui_utils__["c" /* changeColor */]("end_input", "black");
+  }
+  if (FetchQue.length === 0) {
+    let first = document.getElementById('start_input');
+    __WEBPACK_IMPORTED_MODULE_0__ui_utils__["e" /* hideHeader */]();
+    __WEBPACK_IMPORTED_MODULE_1__ajax_utils__["a" /* fetchWikiPage */](first.value, Run);
   }
 };
 
@@ -9476,7 +9482,7 @@ const hideHeader = () => {
   top += "px";
   header.style.top = top;
 };
-/* harmony export (immutable) */ __webpack_exports__["d"] = hideHeader;
+/* harmony export (immutable) */ __webpack_exports__["e"] = hideHeader;
 
 
 const showHeader = () => {
@@ -9520,6 +9526,28 @@ const addLi = (parent, pages) => {
   document.getElementById('test').append(newPages);
 };
 /* harmony export (immutable) */ __webpack_exports__["b"] = addLi;
+
+
+const disamModal = (pages, callback) => {
+  console.log("fired");
+  let modal = document.getElementById("disam_modal");
+  let pageUl = document.getElementById("disam_helper");
+  modal.style.display = "inline";
+  let li;
+  pages.pop();
+  pages.forEach((page) => {
+    li = document.createElement("li");
+    pageUl.append(li);
+    li.append(page);
+  });
+  pageUl.addEventListener("click", (e) => {
+    let input = document.getElementById("end_input");
+    input.value = e.target.innerHTML;
+    modal.style.display = "none";
+    callback(e);
+  });
+};
+/* harmony export (immutable) */ __webpack_exports__["d"] = disamModal;
 
 
 
@@ -9592,6 +9620,7 @@ const formatResponse = (response) => {
   let pages = Object.keys(rjson.query.pages);
   pages = pages[0];
   pages = rjson.query.pages[pages].revisions[0]["*"];
+  let Wiktionary = (pages.slice(2,12).toLowerCase() === "wiktionary");
 
   pages = pages.match(/\[(.*?)\]/g).map(
     (word) => {
@@ -9610,6 +9639,9 @@ const formatResponse = (response) => {
       return word;
     }).filter((word) => word.length > 0);
 
+  if (Wiktionary){
+    pages.push("Wiktionary");
+  }
   return pages;
 };
 
@@ -23020,6 +23052,24 @@ function nopropagation() {
   __WEBPACK_IMPORTED_MODULE_0_d3_selection__["b" /* event */].preventDefault();
   __WEBPACK_IMPORTED_MODULE_0_d3_selection__["b" /* event */].stopImmediatePropagation();
 });
+
+
+/***/ }),
+/* 468 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+const titleCase = (string) => {
+  string = string.split(" ");
+  string = string.map((word) => {
+    word = word.toLowerCase();
+    return word[0].toUpperCase() + word.slice(1);
+  });
+
+  return string.join(" ");
+};
+/* unused harmony export titleCase */
+
 
 
 /***/ })
