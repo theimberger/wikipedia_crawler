@@ -17,7 +17,6 @@ export const render = (LinkMap) => {
       (child) => ({name: child})
     );
     count += 1;
-    // drawTree();
   } else {
     let parentArray = LinkMap.trace(LinkMap.currentParent);
     let parent = data.children;
@@ -31,6 +30,9 @@ export const render = (LinkMap) => {
           (child) => child.name === parentArray[i])[0];
           i ++;
       }
+    }
+    if (parent === undefined){
+      debugger;
     }
     parent.children = LinkMap.get(parent.name).children.map(
       (child) => ({name: child})

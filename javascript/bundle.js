@@ -9354,7 +9354,6 @@ const InputListener = (e) => {
   let first = document.getElementById('start_input');
 
   if (LinkMap.origin === "" && LinkMap.destination === ""){
-    // first.value = BasicUtils.titleCase(first.value);
     first.blur();
     LinkMap.add(first.value);
     __WEBPACK_IMPORTED_MODULE_0__ui_utils__["a" /* addInput */]();
@@ -9364,7 +9363,6 @@ const InputListener = (e) => {
   let second = document.getElementById('end_input');
 
   if (first.value !== LinkMap.origin) {
-    // first.value = BasicUtils.titleCase(first.value);
     console.log(first.value);
     LinkMap.reset(first.value);
     FetchQue.length = 0;
@@ -9372,7 +9370,9 @@ const InputListener = (e) => {
     return;
   }
   if (second.value !== LinkMap.destination){
-    // second.value = BasicUtils.titleCase(second.value);
+    if (e.type === "keydown") {
+      second.value = __WEBPACK_IMPORTED_MODULE_4__basic_utils__["a" /* titleCase */](second.value);
+    }
     LinkMap.destination = second.value;
     __WEBPACK_IMPORTED_MODULE_1__ajax_utils__["a" /* fetchWikiPage */](second.value, updateEnd);
     return;
@@ -9388,25 +9388,29 @@ const filterPages = (pages) => {
 
   let frequency = (100/pages.length);
 
+
   while (i < pages.length) {
-    if (LinkMap.includes(pages[i])) {
+    if (LinkMap.includes(pages[i])
+      || LinkMap.includes(pages[i].toLowerCase())) {
       i ++;
       continue;
     }
     if (targetPages.includes(pages[i])) {
       filtered.push(pages[i]);
+      LinkMap.add(pages[i]);
       i ++;
       continue;
     }
     if (pages[i].includes(LinkMap.destination) &&
         LinkMap.destination.length > 4) {
-
       filtered.push(pages[i]);
+      LinkMap.add(pages[i]);
       i ++;
       continue;
     }
     if ((50 * Math.random()) + frequency > 50) {
       filtered.push(pages[i]);
+      LinkMap.add(pages[i]);
     }
     i ++;
   }
@@ -9437,6 +9441,7 @@ const Run = (pages) => {
     console.log(LinkMap.trace(LinkMap.destination));
     FetchQue.length = 0;
     __WEBPACK_IMPORTED_MODULE_3__d3_utils__["a" /* drawTree */](LinkMap);
+    debugger
     return;
   }
 
@@ -9791,7 +9796,6 @@ const render = (LinkMap) => {
       (child) => ({name: child})
     );
     count += 1;
-    // drawTree();
   } else {
     let parentArray = LinkMap.trace(LinkMap.currentParent);
     let parent = data.children;
@@ -9805,6 +9809,9 @@ const render = (LinkMap) => {
           (child) => child.name === parentArray[i])[0];
           i ++;
       }
+    }
+    if (parent === undefined){
+      debugger;
     }
     parent.children = LinkMap.get(parent.name).children.map(
       (child) => ({name: child})
@@ -23068,7 +23075,7 @@ const titleCase = (string) => {
 
   return string.join(" ");
 };
-/* unused harmony export titleCase */
+/* harmony export (immutable) */ __webpack_exports__["a"] = titleCase;
 
 
 

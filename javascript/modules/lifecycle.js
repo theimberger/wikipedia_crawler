@@ -29,7 +29,6 @@ const InputListener = (e) => {
   let first = document.getElementById('start_input');
 
   if (LinkMap.origin === "" && LinkMap.destination === ""){
-    // first.value = BasicUtils.titleCase(first.value);
     first.blur();
     LinkMap.add(first.value);
     UIUtils.addInput();
@@ -39,7 +38,6 @@ const InputListener = (e) => {
   let second = document.getElementById('end_input');
 
   if (first.value !== LinkMap.origin) {
-    // first.value = BasicUtils.titleCase(first.value);
     console.log(first.value);
     LinkMap.reset(first.value);
     FetchQue.length = 0;
@@ -47,7 +45,9 @@ const InputListener = (e) => {
     return;
   }
   if (second.value !== LinkMap.destination){
-    // second.value = BasicUtils.titleCase(second.value);
+    if (e.type === "keydown") {
+      second.value = BasicUtils.titleCase(second.value);
+    }
     LinkMap.destination = second.value;
     AjaxUtils.fetchWikiPage(second.value, updateEnd);
     return;
@@ -63,25 +63,29 @@ const filterPages = (pages) => {
 
   let frequency = (100/pages.length);
 
+
   while (i < pages.length) {
-    if (LinkMap.includes(pages[i])) {
+    if (LinkMap.includes(pages[i])
+      || LinkMap.includes(pages[i].toLowerCase())) {
       i ++;
       continue;
     }
     if (targetPages.includes(pages[i])) {
       filtered.push(pages[i]);
+      LinkMap.add(pages[i]);
       i ++;
       continue;
     }
     if (pages[i].includes(LinkMap.destination) &&
         LinkMap.destination.length > 4) {
-
       filtered.push(pages[i]);
+      LinkMap.add(pages[i]);
       i ++;
       continue;
     }
     if ((50 * Math.random()) + frequency > 50) {
       filtered.push(pages[i]);
+      LinkMap.add(pages[i]);
     }
     i ++;
   }
@@ -112,6 +116,7 @@ const Run = (pages) => {
     console.log(LinkMap.trace(LinkMap.destination));
     FetchQue.length = 0;
     D3Utils.drawTree(LinkMap);
+    debugger
     return;
   }
 
