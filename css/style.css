@@ -76,16 +76,24 @@ input {
   width: 100%;
 }
 
-#test {
+
+#log-wrapper {
   position: absolute;
-  font-size: 9px;
-  width: 300px;
   bottom: 150px;
-  right: -10px;
-  height: 500px;
-  overflow: scroll;
-  color: #aaa;
+  max-height: 500px;
+  right: 10px;
   padding-right: 20px;
+  width: 300px;
+  overflow: scroll;
+}
+
+#log {
+  vertical-align: bottom;
+  position: relative;
+  min-height: min-content;
+  min-height: -webkit-min-content;
+  font-size: 9px;
+  color: #aaa;
 }
 
 li {
@@ -94,38 +102,6 @@ li {
 
 .bold {
   color: black;
-}
-
-
-/*styles below are from a codepen, see https://codepen.io/netkuy/pen/qZGdoj*/
-
-.node circle {
-  fill: black;
-}
-
-.node text {
-  font: 10px sans-serif;
-}
-
-.node text.trace {
-  font-size: 10px;
-  background-color: black;
-  color: green !important;
-}
-
-.node--internal circle {
-  fill: #555;
-}
-
-.node--internal text {
-  text-shadow: 0 1px 0 #fff, 0 -1px 0 #fff, 1px 0 0 #fff, -1px 0 0 #fff;
-}
-
-.link {
-  fill: none;
-  stroke: #555;
-  stroke-opacity: 0.4;
-  stroke-width: 1px;
 }
 
 #disam_modal {
@@ -177,4 +153,35 @@ li {
 #close:hover {
   background-color: #eee;
   border-radius: 50%;
+}
+
+/*styles below are from a codepen, see https://codepen.io/netkuy/pen/qZGdoj*/
+
+.node circle {
+  fill: black;
+}
+
+.node text {
+  font: 10px sans-serif;
+}
+
+.node text.trace {
+  font-size: 10px;
+  background-color: black;
+  color: green !important;
+}
+
+.node--internal circle {
+  fill: #555;
+}
+
+.node--internal text {
+  text-shadow: 0 1px 0 #fff, 0 -1px 0 #fff, 1px 0 0 #fff, -1px 0 0 #fff;
+}
+
+.link {
+  fill: none;
+  stroke: #555;
+  stroke-opacity: 0.4;
+  stroke-width: 1px;
 }

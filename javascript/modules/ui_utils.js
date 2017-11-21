@@ -35,10 +35,10 @@ export const addLi = (parent, pages) => {
   let newPages = document.createElement("li");
   let bold = document.createElement("span");
   bold.classList.add("bold");
-  bold.append(parent);
+  bold.append(parent + " - ");
   newPages.append(bold);
   newPages.append(pages);
-  document.getElementById('test').append(newPages);
+  document.getElementById('log').prepend(newPages);
 };
 
 export const disamModal = (pages, callback) => {

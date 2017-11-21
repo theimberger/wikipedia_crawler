@@ -102,11 +102,15 @@ const filterPages = (pages) => {
 };
 
 const Run = (pages) => {
+  if (pages[pages.length - 1] === "Wiktionary"
+    && LinkMap.destination !== "Wiktionary"){
+    pages.pop();
+  }
   if (FetchQue.length === 0 && pages.length === 0) {
     document.getElementById('start_input').style.color = "red";
     return;
   }
-  var test = document.getElementById('test');
+  var log = document.getElementById('log');
   pages = filterPages(pages);
   LinkMap.get(LinkMap.currentParent).children = pages;
   UIUtils.addLi(LinkMap.currentParent, pages);

@@ -9426,11 +9426,15 @@ const filterPages = (pages) => {
 };
 
 const Run = (pages) => {
+  if (pages[pages.length - 1] === "Wiktionary"
+    && LinkMap.destination !== "Wiktionary"){
+    pages.pop();
+  }
   if (FetchQue.length === 0 && pages.length === 0) {
     document.getElementById('start_input').style.color = "red";
     return;
   }
-  var test = document.getElementById('test');
+  var log = document.getElementById('log');
   pages = filterPages(pages);
   LinkMap.get(LinkMap.currentParent).children = pages;
   __WEBPACK_IMPORTED_MODULE_0__ui_utils__["b" /* addLi */](LinkMap.currentParent, pages);
@@ -9539,10 +9543,10 @@ const addLi = (parent, pages) => {
   let newPages = document.createElement("li");
   let bold = document.createElement("span");
   bold.classList.add("bold");
-  bold.append(parent);
+  bold.append(parent + " - ");
   newPages.append(bold);
   newPages.append(pages);
-  document.getElementById('test').append(newPages);
+  document.getElementById('log').prepend(newPages);
 };
 /* harmony export (immutable) */ __webpack_exports__["b"] = addLi;
 
@@ -9615,7 +9619,7 @@ const formatResponse = (response) => {
   let title = rjson.query.pages[pages].title;
   pages = rjson.query.pages[pages].revisions[0]["*"];
   let Wiktionary = (pages.slice(2,12).toLowerCase() === "wiktionary");
-
+  Wiktionary = (Wiktionary || pages.match(/may refer to/g) !== null);
   pages = pages.match(/\[(.*?)\]/g).map(
     (word) => {
       if (

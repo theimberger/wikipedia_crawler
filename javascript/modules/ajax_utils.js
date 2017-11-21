@@ -36,7 +36,7 @@ const formatResponse = (response) => {
   let title = rjson.query.pages[pages].title;
   pages = rjson.query.pages[pages].revisions[0]["*"];
   let Wiktionary = (pages.slice(2,12).toLowerCase() === "wiktionary");
-
+  Wiktionary = (Wiktionary || pages.match(/may refer to/g) !== null);
   pages = pages.match(/\[(.*?)\]/g).map(
     (word) => {
       if (
