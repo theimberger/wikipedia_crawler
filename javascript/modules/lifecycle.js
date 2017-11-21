@@ -2,7 +2,6 @@ import * as UIUtils from './ui_utils';
 import * as AjaxUtils from './ajax_utils';
 import PolyHash from './poly_hash';
 import * as D3Utils from './d3_utils';
-import * as BasicUtils from './basic_utils';
 
 const LinkMap = new PolyHash();
 const FetchQue = [];
@@ -27,10 +26,9 @@ const InputListener = (e) => {
   e.preventDefault();
 
   let first = document.getElementById('start_input');
-
-  if (LinkMap.origin === "" && LinkMap.destination === ""){
+  if (document.getElementById("end_input") === null){
     first.blur();
-    LinkMap.add(first.value);
+    AjaxUtils.fetchWikiPage(first.value, setFirstPage);
     UIUtils.addInput();
     return;
   }
@@ -38,19 +36,29 @@ const InputListener = (e) => {
   let second = document.getElementById('end_input');
 
   if (first.value !== LinkMap.origin) {
-    console.log(first.value);
+    first.style.color = "black";
     LinkMap.reset(first.value);
     FetchQue.length = 0;
-    AjaxUtils.fetchWikiPage(first.value, Run);
+    AjaxUtils.fetchWikiPage(first.value, setFirstPage);
     return;
   }
   if (second.value !== LinkMap.destination){
-    if (e.type === "keydown") {
-      second.value = BasicUtils.titleCase(second.value);
-    }
-    LinkMap.destination = second.value;
     AjaxUtils.fetchWikiPage(second.value, updateEnd);
     return;
+  }
+};
+
+const setFirstPage = (pages, correctedTitle) => {
+  if (pages.length > 0) {
+    LinkMap.add(correctedTitle);
+    LinkMap.origin = correctedTitle;
+    LinkMap.currentParent = correctedTitle;
+    document.getElementById("start_input").value = correctedTitle;
+    if (LinkMap.destination !== ""){
+      Run(pages);
+    }
+  } else {
+    UIUtils.changeColor("start_input", "red");
   }
 };
 
@@ -94,6 +102,10 @@ const filterPages = (pages) => {
 };
 
 const Run = (pages) => {
+  if (FetchQue.length === 0 && pages.length === 0) {
+    document.getElementById('start_input').style.color = "red";
+    return;
+  }
   var test = document.getElementById('test');
   pages = filterPages(pages);
   LinkMap.get(LinkMap.currentParent).children = pages;
@@ -130,7 +142,7 @@ const RunFactory = (title) => () => {
   FetchQue.shift();
 };
 
-const updateEnd = (pages) => {
+const updateEnd = (pages, correctedTitle) => {
   if (pages.length === 0){
     UIUtils.changeColor("end_input", "red");
     return;
@@ -138,8 +150,11 @@ const updateEnd = (pages) => {
     UIUtils.disamModal(pages, InputListener);
     return;
   } else {
+    LinkMap.destination = correctedTitle;
     targetPages = pages;
-    document.getElementById("end_input").blur();
+    let endInput = document.getElementById("end_input");
+    endInput.blur();
+    endInput.value = correctedTitle;
     UIUtils.changeColor("end_input", "black");
   }
   if (FetchQue.length === 0) {

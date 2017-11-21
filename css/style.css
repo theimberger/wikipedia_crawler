@@ -62,6 +62,7 @@ form {
   position: absolute;
   bottom: -90px;
   background: none;
+  width: 100%;
 }
 
 input {
@@ -72,6 +73,7 @@ input {
   font-size: 1.5em;
   border: none;
   border-bottom: 1px solid gray;
+  width: 100%;
 }
 
 #test {

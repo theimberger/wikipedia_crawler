@@ -9320,8 +9320,6 @@ document.addEventListener('DOMContentLoaded', () => {
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__ajax_utils__ = __webpack_require__(174);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__poly_hash__ = __webpack_require__(175);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__d3_utils__ = __webpack_require__(176);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__basic_utils__ = __webpack_require__(468);
-
 
 
 
@@ -9352,10 +9350,9 @@ const InputListener = (e) => {
   e.preventDefault();
 
   let first = document.getElementById('start_input');
-
-  if (LinkMap.origin === "" && LinkMap.destination === ""){
+  if (document.getElementById("end_input") === null){
     first.blur();
-    LinkMap.add(first.value);
+    __WEBPACK_IMPORTED_MODULE_1__ajax_utils__["a" /* fetchWikiPage */](first.value, setFirstPage);
     __WEBPACK_IMPORTED_MODULE_0__ui_utils__["a" /* addInput */]();
     return;
   }
@@ -9363,19 +9360,29 @@ const InputListener = (e) => {
   let second = document.getElementById('end_input');
 
   if (first.value !== LinkMap.origin) {
-    console.log(first.value);
+    first.style.color = "black";
     LinkMap.reset(first.value);
     FetchQue.length = 0;
-    __WEBPACK_IMPORTED_MODULE_1__ajax_utils__["a" /* fetchWikiPage */](first.value, Run);
+    __WEBPACK_IMPORTED_MODULE_1__ajax_utils__["a" /* fetchWikiPage */](first.value, setFirstPage);
     return;
   }
   if (second.value !== LinkMap.destination){
-    if (e.type === "keydown") {
-      second.value = __WEBPACK_IMPORTED_MODULE_4__basic_utils__["a" /* titleCase */](second.value);
-    }
-    LinkMap.destination = second.value;
     __WEBPACK_IMPORTED_MODULE_1__ajax_utils__["a" /* fetchWikiPage */](second.value, updateEnd);
     return;
+  }
+};
+
+const setFirstPage = (pages, correctedTitle) => {
+  if (pages.length > 0) {
+    LinkMap.add(correctedTitle);
+    LinkMap.origin = correctedTitle;
+    LinkMap.currentParent = correctedTitle;
+    document.getElementById("start_input").value = correctedTitle;
+    if (LinkMap.destination !== ""){
+      Run(pages);
+    }
+  } else {
+    __WEBPACK_IMPORTED_MODULE_0__ui_utils__["c" /* changeColor */]("start_input", "red");
   }
 };
 
@@ -9419,6 +9426,10 @@ const filterPages = (pages) => {
 };
 
 const Run = (pages) => {
+  if (FetchQue.length === 0 && pages.length === 0) {
+    document.getElementById('start_input').style.color = "red";
+    return;
+  }
   var test = document.getElementById('test');
   pages = filterPages(pages);
   LinkMap.get(LinkMap.currentParent).children = pages;
@@ -9455,7 +9466,7 @@ const RunFactory = (title) => () => {
   FetchQue.shift();
 };
 
-const updateEnd = (pages) => {
+const updateEnd = (pages, correctedTitle) => {
   if (pages.length === 0){
     __WEBPACK_IMPORTED_MODULE_0__ui_utils__["c" /* changeColor */]("end_input", "red");
     return;
@@ -9463,8 +9474,11 @@ const updateEnd = (pages) => {
     __WEBPACK_IMPORTED_MODULE_0__ui_utils__["d" /* disamModal */](pages, InputListener);
     return;
   } else {
+    LinkMap.destination = correctedTitle;
     targetPages = pages;
-    document.getElementById("end_input").blur();
+    let endInput = document.getElementById("end_input");
+    endInput.blur();
+    endInput.value = correctedTitle;
     __WEBPACK_IMPORTED_MODULE_0__ui_utils__["c" /* changeColor */]("end_input", "black");
   }
   if (FetchQue.length === 0) {
@@ -9562,12 +9576,7 @@ const disamModal = (pages, callback) => {
 
 "use strict";
 
-const fetchWikiPage = (
-  title,
-  callback,
-  reverse = false,
-  fetched = []
-) => {
+const fetchWikiPage = (title, callback) => {
   var wikiRequest = new XMLHttpRequest();
 
     wikiRequest.open(
@@ -9582,19 +9591,9 @@ const fetchWikiPage = (
       && wikiRequest.status === 200
     ) {
       let pages = formatResponse(wikiRequest);
-      if (pages.length === 500) {
-        if (reverse) {
-          pages = mergeResult(fetched, pages);
-          callback(pages);
-        } else {
-          fetchWikiPage(title, callback, true, pages);
-        }
-      } else if (pages.length > 0) {
-        callback(pages);
-      } else {
-        callback([]);
-        return false;
-      }
+      let title = pages.pop();
+
+      callback(pages, title);
     } else if (wikiRequest.readyState === XMLHttpRequest.DONE) {
       alert("error");
     }
@@ -9605,17 +9604,6 @@ const fetchWikiPage = (
 /* harmony export (immutable) */ __webpack_exports__["a"] = fetchWikiPage;
 
 
-const mergeResult = (fetched, pages) => {
-  pages.reverse();
-  let count = 0;
-  let last = fetched[499].title;
-  while (pages[count].title <= last) {
-    count ++;
-  }
-  pages = pages.slice(count);
-  return fetched.concat(pages);
-};
-
 const formatResponse = (response) => {
   let rjson = JSON.parse(response.responseText);
   if (pageDNE(rjson)) {
@@ -9624,6 +9612,7 @@ const formatResponse = (response) => {
   }
   let pages = Object.keys(rjson.query.pages);
   pages = pages[0];
+  let title = rjson.query.pages[pages].title;
   pages = rjson.query.pages[pages].revisions[0]["*"];
   let Wiktionary = (pages.slice(2,12).toLowerCase() === "wiktionary");
 
@@ -9647,6 +9636,7 @@ const formatResponse = (response) => {
   if (Wiktionary){
     pages.push("Wiktionary");
   }
+  pages.push(title);
   return pages;
 };
 
@@ -23059,24 +23049,6 @@ function nopropagation() {
   __WEBPACK_IMPORTED_MODULE_0_d3_selection__["b" /* event */].preventDefault();
   __WEBPACK_IMPORTED_MODULE_0_d3_selection__["b" /* event */].stopImmediatePropagation();
 });
-
-
-/***/ }),
-/* 468 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-const titleCase = (string) => {
-  string = string.split(" ");
-  string = string.map((word) => {
-    word = word.toLowerCase();
-    return word[0].toUpperCase() + word.slice(1);
-  });
-
-  return string.join(" ");
-};
-/* harmony export (immutable) */ __webpack_exports__["a"] = titleCase;
-
 
 
 /***/ })

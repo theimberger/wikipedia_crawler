@@ -1,10 +1,5 @@
 
-export const fetchWikiPage = (
-  title,
-  callback,
-  reverse = false,
-  fetched = []
-) => {
+export const fetchWikiPage = (title, callback) => {
   var wikiRequest = new XMLHttpRequest();
 
     wikiRequest.open(
@@ -19,36 +14,15 @@ export const fetchWikiPage = (
       && wikiRequest.status === 200
     ) {
       let pages = formatResponse(wikiRequest);
-      if (pages.length === 500) {
-        if (reverse) {
-          pages = mergeResult(fetched, pages);
-          callback(pages);
-        } else {
-          fetchWikiPage(title, callback, true, pages);
-        }
-      } else if (pages.length > 0) {
-        callback(pages);
-      } else {
-        callback([]);
-        return false;
-      }
+      let title = pages.pop();
+
+      callback(pages, title);
     } else if (wikiRequest.readyState === XMLHttpRequest.DONE) {
       alert("error");
     }
   };
 
   wikiRequest.send();
-};
-
-const mergeResult = (fetched, pages) => {
-  pages.reverse();
-  let count = 0;
-  let last = fetched[499].title;
-  while (pages[count].title <= last) {
-    count ++;
-  }
-  pages = pages.slice(count);
-  return fetched.concat(pages);
 };
 
 const formatResponse = (response) => {
@@ -59,6 +33,7 @@ const formatResponse = (response) => {
   }
   let pages = Object.keys(rjson.query.pages);
   pages = pages[0];
+  let title = rjson.query.pages[pages].title;
   pages = rjson.query.pages[pages].revisions[0]["*"];
   let Wiktionary = (pages.slice(2,12).toLowerCase() === "wiktionary");
 
@@ -82,6 +57,7 @@ const formatResponse = (response) => {
   if (Wiktionary){
     pages.push("Wiktionary");
   }
+  pages.push(title);
   return pages;
 };
 
