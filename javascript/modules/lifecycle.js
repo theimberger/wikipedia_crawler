@@ -1,8 +1,9 @@
 import * as UIUtils from './ui_utils';
 import * as AjaxUtils from './ajax_utils';
 import PolyHash from './poly_hash';
-import * as D3Utils from './d3_utils';
+import TreeVisualization from './tree_utils';
 
+const Tree = new TreeVisualization();
 const LinkMap = new PolyHash();
 const FetchQue = [];
 var targetPages = [];
@@ -131,12 +132,12 @@ const Run = (pages) => {
     console.log("FOUND IT");
     console.log(LinkMap.trace(LinkMap.destination));
     FetchQue.length = 0;
-    D3Utils.drawTree(LinkMap);
+    Tree.drawTree(LinkMap);
     debugger
     return;
   }
 
-  D3Utils.render(LinkMap);
+  Tree.render(LinkMap);
   setTimeout(FetchQue[0], 100);
 };
 
