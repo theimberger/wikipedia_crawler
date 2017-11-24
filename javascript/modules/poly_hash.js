@@ -84,7 +84,8 @@ export default class PolyHash {
   }
 
   reset(newTarget) {
-    this.map = Array(5000).fill(null);
+    this.map = [];
+    this.map = Array(1000).fill(null);
     this.origin = newTarget;
     // this.destination = "";
     this.currentParent = "";

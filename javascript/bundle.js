@@ -9363,6 +9363,7 @@ const InputListener = (e) => {
   if (first.value !== LinkMap.origin) {
     first.style.color = "black";
     LinkMap.reset(first.value);
+    Tree.reset();
     FetchQue.length = 0;
     __WEBPACK_IMPORTED_MODULE_1__ajax_utils__["a" /* fetchWikiPage */](first.value, setFirstPage);
     return;
@@ -9743,7 +9744,8 @@ class PolyHash {
   }
 
   reset(newTarget) {
-    this.map = Array(5000).fill(null);
+    this.map = [];
+    this.map = Array(1000).fill(null);
     this.origin = newTarget;
     // this.destination = "";
     this.currentParent = "";
@@ -9778,6 +9780,10 @@ class TreeVisualization {
   constructor() {
     this.bodyWidth = window.innerWidth;
     this.bodyHeight = window.innerHeight;
+    this.reset();
+  }
+
+  reset(){
     this.data = {
       name: "",
       children: []
@@ -9785,6 +9791,7 @@ class TreeVisualization {
     this.count = 0;
     this.tree = null;
     this.canvas = null;
+    debugger
   }
 
   render(LinkMap) {

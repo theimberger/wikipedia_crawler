@@ -4,6 +4,10 @@ export default class TreeVisualization {
   constructor() {
     this.bodyWidth = window.innerWidth;
     this.bodyHeight = window.innerHeight;
+    this.reset();
+  }
+
+  reset(){
     this.data = {
       name: "",
       children: []

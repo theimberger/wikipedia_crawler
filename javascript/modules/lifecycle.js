@@ -39,6 +39,7 @@ const InputListener = (e) => {
   if (first.value !== LinkMap.origin) {
     first.style.color = "black";
     LinkMap.reset(first.value);
+    Tree.reset();
     FetchQue.length = 0;
     AjaxUtils.fetchWikiPage(first.value, setFirstPage);
     return;
