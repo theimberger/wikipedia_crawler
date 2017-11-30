@@ -15,6 +15,12 @@ export default class TreeVisualization {
     this.count = 0;
     this.tree = null;
     this.canvas = null;
+    let existing = document.getElementsByTagName('svg');
+    if (existing.length > 0){
+      existing = existing[0];
+      let body = document.getElementsByTagName('body');
+      body[0].removeChild(existing);
+    }
   }
 
   render(LinkMap) {

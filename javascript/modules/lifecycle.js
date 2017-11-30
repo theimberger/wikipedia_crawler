@@ -149,6 +149,13 @@ const RunFactory = (title) => () => {
 };
 
 const updateEnd = (pages, correctedTitle) => {
+  let first = document.getElementById('start_input');
+  if (LinkMap.destination !== "") {
+    LinkMap.reset(first.value);
+    LinkMap.add(first.value);
+    Tree.reset();
+    FetchQue.length = 0;
+  }
   if (pages.length === 0){
     UIUtils.changeColor("end_input", "red");
     return;
@@ -164,7 +171,6 @@ const updateEnd = (pages, correctedTitle) => {
     UIUtils.changeColor("end_input", "black");
   }
   if (FetchQue.length === 0) {
-    let first = document.getElementById('start_input');
     UIUtils.hideHeader();
     AjaxUtils.fetchWikiPage(first.value, Run);
   }

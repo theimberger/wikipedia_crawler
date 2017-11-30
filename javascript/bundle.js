@@ -9473,6 +9473,13 @@ const RunFactory = (title) => () => {
 };
 
 const updateEnd = (pages, correctedTitle) => {
+  let first = document.getElementById('start_input');
+  if (LinkMap.destination !== "") {
+    LinkMap.reset(first.value);
+    LinkMap.add(first.value);
+    Tree.reset();
+    FetchQue.length = 0;
+  }
   if (pages.length === 0){
     __WEBPACK_IMPORTED_MODULE_0__ui_utils__["c" /* changeColor */]("end_input", "red");
     return;
@@ -9488,7 +9495,6 @@ const updateEnd = (pages, correctedTitle) => {
     __WEBPACK_IMPORTED_MODULE_0__ui_utils__["c" /* changeColor */]("end_input", "black");
   }
   if (FetchQue.length === 0) {
-    let first = document.getElementById('start_input');
     __WEBPACK_IMPORTED_MODULE_0__ui_utils__["e" /* hideHeader */]();
     __WEBPACK_IMPORTED_MODULE_1__ajax_utils__["a" /* fetchWikiPage */](first.value, Run);
   }
@@ -9748,7 +9754,7 @@ class PolyHash {
     this.map = Array(1000).fill(null);
     this.origin = newTarget;
     // this.destination = "";
-    this.currentParent = "";
+    this.currentParent = newTarget;
     this.count = 0;
   }
 }
@@ -9791,7 +9797,12 @@ class TreeVisualization {
     this.count = 0;
     this.tree = null;
     this.canvas = null;
-    debugger
+    let existing = document.getElementsByTagName('svg');
+    if (existing.length > 0){
+      existing = existing[0];
+      let body = document.getElementsByTagName('body');
+      body[0].removeChild(existing);
+    }
   }
 
   render(LinkMap) {
