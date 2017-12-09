@@ -9364,6 +9364,7 @@ const InputListener = (e) => {
     first.style.color = "black";
     LinkMap.reset(first.value);
     Tree.reset();
+    document.getElementById("log").innerHTML = "";
     FetchQue.length = 0;
     __WEBPACK_IMPORTED_MODULE_1__ajax_utils__["a" /* fetchWikiPage */](first.value, setFirstPage);
     return;
@@ -9478,6 +9479,7 @@ const updateEnd = (pages, correctedTitle) => {
     LinkMap.reset(first.value);
     LinkMap.add(first.value);
     Tree.reset();
+    document.getElementById("log").innerHTML = "";
     FetchQue.length = 0;
   }
   if (pages.length === 0){
