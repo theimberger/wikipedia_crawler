@@ -171,11 +171,11 @@ li {
   color: green !important;
 }
 
-.node--internal circle {
+.internal_node circle {
   fill: #555;
 }
 
-.node--internal text {
+.internal_node text {
   text-shadow: 0 1px 0 #fff, 0 -1px 0 #fff, 1px 0 0 #fff, -1px 0 0 #fff;
 }
 

@@ -9362,8 +9362,7 @@ const InputListener = (e) => {
 
   if (first.value !== LinkMap.origin) {
     first.style.color = "black";
-    LinkMap.reset(first.value);
-    Tree.reset();
+    LinkMap.reset();
     document.getElementById("log").innerHTML = "";
     FetchQue.length = 0;
     __WEBPACK_IMPORTED_MODULE_1__ajax_utils__["a" /* fetchWikiPage */](first.value, setFirstPage);
@@ -9378,6 +9377,7 @@ const InputListener = (e) => {
 const setFirstPage = (pages, correctedTitle) => {
   if (pages.length > 0) {
     LinkMap.add(correctedTitle);
+    Tree.reset(LinkMap.get(LinkMap.origin));
     LinkMap.origin = correctedTitle;
     LinkMap.currentParent = correctedTitle;
     document.getElementById("start_input").value = correctedTitle;
@@ -9478,7 +9478,7 @@ const updateEnd = (pages, correctedTitle) => {
   if (LinkMap.destination !== "") {
     LinkMap.reset(first.value);
     LinkMap.add(first.value);
-    Tree.reset();
+    Tree.reset(LinkMap.get(LinkMap.origin));
     document.getElementById("log").innerHTML = "";
     FetchQue.length = 0;
   }
@@ -9785,57 +9785,87 @@ const hashString = (string) => {
 
 
 class TreeVisualization {
-  constructor() {
+  constructor(origin = "") {
     this.bodyWidth = window.innerWidth;
     this.bodyHeight = window.innerHeight;
-    this.reset();
+    this.reset(origin);
   }
 
-  reset(){
-    this.data = {
-      name: "",
-      children: []
-    };
+  reset(origin){
+    // get the start point for the tree and add a node
+    this.data = Object.assign({}, origin);
+    this.data.parent = null;
+    this.data = __WEBPACK_IMPORTED_MODULE_0_d3__["d" /* stratify */]()
+      .id((d) => d.title)
+      .parentId((d) => d.parent)([this.data]);
+    this.data.each(function(d){ d.title = d.id; });
+
+    // reset previous data, if any
     this.count = 0;
     this.tree = null;
     this.canvas = null;
-    let existing = document.getElementsByTagName('svg');
+    let existing = document.getElementsByTagName("svg");
     if (existing.length > 0){
       existing = existing[0];
-      let body = document.getElementsByTagName('body');
+      let body = document.getElementsByTagName("body");
       body[0].removeChild(existing);
     }
+
+    // create tree and append new svg
+    this.tree = __WEBPACK_IMPORTED_MODULE_0_d3__["e" /* tree */]()
+      .size([this.bodyHeight -150, this.bodyWidth - 500]);
+
+    this.nodes = __WEBPACK_IMPORTED_MODULE_0_d3__["a" /* hierarchy */](this.data);
+    this.nodes = this.tree(this.nodes);
+
+    this.canvas = __WEBPACK_IMPORTED_MODULE_0_d3__["b" /* select */]("body").append("svg")
+      .attr("width", this.bodyWidth)
+      .attr("height", this.bodyHeight);
+
+    this.g = this.canvas.append("g")
+      .attr("transform", "translate(100, 100)")
+      .attr("class", "main");
+
+    this.link = this.g.selectAll(".link")
+      .data(this.nodes.descendants().slice(1))
+      .enter().append("path")
+        .attr("class", "link")
+        .attr("d", (d) => {
+          return `M${d.x},${d.y} ` +
+            `C${d.x},${(d.y + d.parent.y)/2} ` +
+            `${d.parent.x},${(d.y + d.parent.y / 2)} ` +
+            `${d.parent.x}, ${d.parent.y}`;
+        });
+
+    this.node = this.g.selectAll(".node")
+      .data(this.nodes.descendants())
+      .enter().append("g")
+        .attr("class", (d) => {
+          return "node " +
+            (d.children ? "internal_node" : "leaf_node");
+        })
+        .attr("transform", (d) => {
+          return `translate(${d.x},${d.y})`;
+        });
+      this.node.append("circle")
+        .attr("r", 2);
+      this.node.on("mouseover", function(d) {
+          __WEBPACK_IMPORTED_MODULE_0_d3__["b" /* select */](this).raise()
+          .append("text")
+            .attr("class", "node_name")
+            .attr("dy", 3)
+            .attr("x", function(d) { return d.children ? -8 : 8; })
+            .style("text-anchor",
+              function(d) { return d.children ? "end" : "start"; })
+            .text(function(d) { return d.data.name; });
+        })
+        .on("mouseout", function(d){
+          __WEBPACK_IMPORTED_MODULE_0_d3__["c" /* selectAll */]("text.node_name").remove();
+        });
   }
 
-  render(LinkMap) {
-    if (this.data.name === "") {
-      this.data["name"] = LinkMap.origin;
-      this.data["children"] = LinkMap.get(LinkMap.origin).children.map(
-        (child) => ({name: child})
-      );
-      this.count += 1;
-    } else {
-      let parentArray = LinkMap.trace(LinkMap.currentParent);
-      let parent = this.data.children;
-      let i = 2;
-      parent = this.data.children.filter(
-        (child) => child.name === parentArray[1])[0];
+  plant() {
 
-      while (i < parentArray.length) {
-        if (parent.children.length > 0) {
-          parent = parent.children.filter(
-            (child) => child.name === parentArray[i])[0];
-            i ++;
-        }
-      }
-      if (parent === undefined){
-        debugger;
-      }
-      parent.children = LinkMap.get(parent.name).children.map(
-        (child) => ({name: child})
-      );
-      this.count += 1;
-    }
   }
 
   drawTree(LinkMap) {
@@ -9843,27 +9873,27 @@ class TreeVisualization {
     // https://codepen.io/netkuy/pen/qZGdoj
     // by Yuki Kodama
 
+    //
+    // this.canvas = d3.select("body").append("svg")
+    //   .attr("width", this.bodyWidth)
+    //   .attr("height", this.bodyHeight)
+    //   .append("g")
+    //   .attr("transform", "translate(100, 100)")
+    //   .attr("class", "main");
 
-    this.canvas = __WEBPACK_IMPORTED_MODULE_0_d3__["b" /* select */]("body").append("svg")
-      .attr("width", this.bodyWidth)
-      .attr("height", this.bodyHeight)
-      .append('g')
-      .attr('transform', 'translate(100, 100)')
-      .attr('class', 'main');
 
 
-
-    this.tree = __WEBPACK_IMPORTED_MODULE_0_d3__["d" /* tree */]().size([this.bodyHeight -150, this.bodyWidth - 500]);
-    var root = __WEBPACK_IMPORTED_MODULE_0_d3__["a" /* hierarchy */](this.data);
+    // this.tree = d3.tree().size([this.bodyHeight -150, this.bodyWidth - 500]);
+    // var root = d3.hierarchy(this.data);
 
     this.tree(root);
 
-    var link = this.canvas.selectAll('.link')
+    var link = this.canvas.selectAll(".link")
       .data(root.descendants().slice(1))
       .enter()
-      .append('path')
-      .attr('class', 'link')
-      .attr('d', function(d) {
+      .append("path")
+      .attr("class", "link")
+      .attr("d", function(d) {
         return "M" + d.y + "," + d.x
         + "C" + (d.y + d.parent.y) / 2 + "," + d.x
         + " " + (d.y + d.parent.y) / 2 + "," + d.parent.x
@@ -9871,18 +9901,18 @@ class TreeVisualization {
 
       });
 
-    var node = this.canvas.selectAll('.node')
+    var node = this.canvas.selectAll(".node")
       .data(root.descendants())
       .enter()
-      .append('g')
-      .attr('class', function(d) {
+      .append("g")
+      .attr("class", function(d) {
         return "node " + (d.children ? "node-internal" : "node-leaf");
       })
       .attr("transform", function(d) { return "translate(" + d.y + "," + d.x + ")"; })
       .on("mouseover", function(d) {
         __WEBPACK_IMPORTED_MODULE_0_d3__["b" /* select */](this).raise()
         .append("text")
-          .attr('class', 'node_name')
+          .attr("class", "node_name")
           .attr("dy", 3)
           .attr("x", function(d) { return d.children ? -8 : 8; })
           .style("text-anchor", function(d) { return d.children ? "end" : "start"; })
@@ -9896,7 +9926,7 @@ class TreeVisualization {
       .attr("r", 2);
 
     node.append("text")
-        .attr('class', 'trace')
+        .attr("class", "trace")
         .attr("dy", 3)
         .attr("x", function(d) { return d.children ? -8 : 8; })
         .style("text-anchor", function(d) { return d.children ? "end" : "start"; })
@@ -9948,6 +9978,7 @@ class TreeVisualization {
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_14_d3_hierarchy__ = __webpack_require__(356);
 /* harmony namespace reexport (by used) */ __webpack_require__.d(__webpack_exports__, "a", function() { return __WEBPACK_IMPORTED_MODULE_14_d3_hierarchy__["a"]; });
 /* harmony namespace reexport (by used) */ __webpack_require__.d(__webpack_exports__, "d", function() { return __WEBPACK_IMPORTED_MODULE_14_d3_hierarchy__["b"]; });
+/* harmony namespace reexport (by used) */ __webpack_require__.d(__webpack_exports__, "e", function() { return __WEBPACK_IMPORTED_MODULE_14_d3_hierarchy__["c"]; });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_15_d3_interpolate__ = __webpack_require__(5);
 /* unused harmony namespace reexport */
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_16_d3_path__ = __webpack_require__(13);
@@ -17851,9 +17882,9 @@ transverseMercatorRaw.invert = function(x, y) {
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__src_partition__ = __webpack_require__(371);
 /* unused harmony reexport partition */
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__src_stratify__ = __webpack_require__(372);
-/* unused harmony reexport stratify */
+/* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return __WEBPACK_IMPORTED_MODULE_6__src_stratify__["a"]; });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__src_tree__ = __webpack_require__(373);
-/* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return __WEBPACK_IMPORTED_MODULE_7__src_tree__["a"]; });
+/* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "c", function() { return __WEBPACK_IMPORTED_MODULE_7__src_tree__["a"]; });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_8__src_treemap_index__ = __webpack_require__(374);
 /* unused harmony reexport treemap */
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_9__src_treemap_binary__ = __webpack_require__(375);
@@ -18376,7 +18407,7 @@ function defaultParentId(d) {
   return d.parentId;
 }
 
-/* unused harmony default export */ var _unused_webpack_default_export = (function() {
+/* harmony default export */ __webpack_exports__["a"] = (function() {
   var id = defaultId,
       parentId = defaultParentId;
 

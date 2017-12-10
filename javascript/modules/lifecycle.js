@@ -38,8 +38,7 @@ const InputListener = (e) => {
 
   if (first.value !== LinkMap.origin) {
     first.style.color = "black";
-    LinkMap.reset(first.value);
-    Tree.reset();
+    LinkMap.reset();
     document.getElementById("log").innerHTML = "";
     FetchQue.length = 0;
     AjaxUtils.fetchWikiPage(first.value, setFirstPage);
@@ -54,6 +53,7 @@ const InputListener = (e) => {
 const setFirstPage = (pages, correctedTitle) => {
   if (pages.length > 0) {
     LinkMap.add(correctedTitle);
+    Tree.reset(LinkMap.get(LinkMap.origin));
     LinkMap.origin = correctedTitle;
     LinkMap.currentParent = correctedTitle;
     document.getElementById("start_input").value = correctedTitle;
@@ -154,7 +154,7 @@ const updateEnd = (pages, correctedTitle) => {
   if (LinkMap.destination !== "") {
     LinkMap.reset(first.value);
     LinkMap.add(first.value);
-    Tree.reset();
+    Tree.reset(LinkMap.get(LinkMap.origin));
     document.getElementById("log").innerHTML = "";
     FetchQue.length = 0;
   }
