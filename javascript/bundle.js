@@ -9377,7 +9377,6 @@ const InputListener = (e) => {
 const setFirstPage = (pages, correctedTitle) => {
   if (pages.length > 0) {
     LinkMap.add(correctedTitle);
-    Tree.reset(LinkMap.get(LinkMap.origin));
     LinkMap.origin = correctedTitle;
     LinkMap.currentParent = correctedTitle;
     document.getElementById("start_input").value = correctedTitle;
@@ -9437,9 +9436,17 @@ const Run = (pages) => {
     document.getElementById('start_input').style.color = "red";
     return;
   }
+
   var log = document.getElementById('log');
   pages = filterPages(pages);
   LinkMap.get(LinkMap.currentParent).children = pages;
+
+  if (Tree.origin !== LinkMap.origin) {
+    Tree.plant(LinkMap.get(LinkMap.origin));
+  } else {
+    Tree.addLeaf(LinkMap.get(LinkMap.currentParent));
+  }
+
   __WEBPACK_IMPORTED_MODULE_0__ui_utils__["b" /* addLi */](LinkMap.currentParent, pages);
 
   let i = 0;
@@ -9463,7 +9470,7 @@ const Run = (pages) => {
     return;
   }
 
-  Tree.render(LinkMap);
+  // Tree.render(LinkMap);
   setTimeout(FetchQue[0], 100);
 };
 
@@ -9478,7 +9485,6 @@ const updateEnd = (pages, correctedTitle) => {
   if (LinkMap.destination !== "") {
     LinkMap.reset(first.value);
     LinkMap.add(first.value);
-    Tree.reset(LinkMap.get(LinkMap.origin));
     document.getElementById("log").innerHTML = "";
     FetchQue.length = 0;
   }
@@ -9785,20 +9791,30 @@ const hashString = (string) => {
 
 
 class TreeVisualization {
-  constructor(origin = "") {
+  constructor(origin = null) {
     this.bodyWidth = window.innerWidth;
     this.bodyHeight = window.innerHeight;
-    this.reset(origin);
+    if (origin !== null) {
+      this.origin = origin.title;
+      this.plant(origin);
+    }
   }
 
-  reset(origin){
+  plant(origin){
+    this.origin = origin.title;
     // get the start point for the tree and add a node
+    if (origin === "" || origin === null) {
+      return;
+    }
     this.data = Object.assign({}, origin);
     this.data.parent = null;
-    this.data = __WEBPACK_IMPORTED_MODULE_0_d3__["d" /* stratify */]()
-      .id((d) => d.title)
-      .parentId((d) => d.parent)([this.data]);
-    this.data.each(function(d){ d.title = d.id; });
+
+
+    this.data = __WEBPACK_IMPORTED_MODULE_0_d3__["a" /* hierarchy */](this.data);
+
+    //   .id((d) => d.title)
+    //   .parentId((d) => d.parent)([this.data]);
+    // this.data.each(function(d){ d.title = d.id; });
 
     // reset previous data, if any
     this.count = 0;
@@ -9812,11 +9828,13 @@ class TreeVisualization {
     }
 
     // create tree and append new svg
-    this.tree = __WEBPACK_IMPORTED_MODULE_0_d3__["e" /* tree */]()
+    this.tree = __WEBPACK_IMPORTED_MODULE_0_d3__["d" /* tree */]()
       .size([this.bodyHeight -150, this.bodyWidth - 500]);
 
     this.nodes = __WEBPACK_IMPORTED_MODULE_0_d3__["a" /* hierarchy */](this.data);
     this.nodes = this.tree(this.nodes);
+    this.currentParent = this.nodes
+    this.childCount = this.nodes.children.length;
 
     this.canvas = __WEBPACK_IMPORTED_MODULE_0_d3__["b" /* select */]("body").append("svg")
       .attr("width", this.bodyWidth)
@@ -9831,10 +9849,10 @@ class TreeVisualization {
       .enter().append("path")
         .attr("class", "link")
         .attr("d", (d) => {
-          return `M${d.x},${d.y} ` +
-            `C${d.x},${(d.y + d.parent.y)/2} ` +
-            `${d.parent.x},${(d.y + d.parent.y / 2)} ` +
-            `${d.parent.x}, ${d.parent.y}`;
+          return `M${d.y},${d.x} ` +
+            `C${(d.y + d.parent.y)/2},${d.x} ` +
+            `${(d.y + d.parent.y / 2)},${d.parent.x} ` +
+            `${d.parent.y}, ${d.parent.x}`;
         });
 
     this.node = this.g.selectAll(".node")
@@ -9845,7 +9863,7 @@ class TreeVisualization {
             (d.children ? "internal_node" : "leaf_node");
         })
         .attr("transform", (d) => {
-          return `translate(${d.x},${d.y})`;
+          return `translate(${d.y}, ${d.x})`;
         });
       this.node.append("circle")
         .attr("r", 2);
@@ -9864,9 +9882,11 @@ class TreeVisualization {
         });
   }
 
-  plant() {
-
+  addLeaf(node) {
+    debugger
   }
+
+
 
   drawTree(LinkMap) {
     //this function and associated css are heavily based on this codepen
@@ -9885,56 +9905,56 @@ class TreeVisualization {
 
     // this.tree = d3.tree().size([this.bodyHeight -150, this.bodyWidth - 500]);
     // var root = d3.hierarchy(this.data);
-
-    this.tree(root);
-
-    var link = this.canvas.selectAll(".link")
-      .data(root.descendants().slice(1))
-      .enter()
-      .append("path")
-      .attr("class", "link")
-      .attr("d", function(d) {
-        return "M" + d.y + "," + d.x
-        + "C" + (d.y + d.parent.y) / 2 + "," + d.x
-        + " " + (d.y + d.parent.y) / 2 + "," + d.parent.x
-        + " " + d.parent.y + "," + d.parent.x;
-
-      });
-
-    var node = this.canvas.selectAll(".node")
-      .data(root.descendants())
-      .enter()
-      .append("g")
-      .attr("class", function(d) {
-        return "node " + (d.children ? "node-internal" : "node-leaf");
-      })
-      .attr("transform", function(d) { return "translate(" + d.y + "," + d.x + ")"; })
-      .on("mouseover", function(d) {
-        __WEBPACK_IMPORTED_MODULE_0_d3__["b" /* select */](this).raise()
-        .append("text")
-          .attr("class", "node_name")
-          .attr("dy", 3)
-          .attr("x", function(d) { return d.children ? -8 : 8; })
-          .style("text-anchor", function(d) { return d.children ? "end" : "start"; })
-          .text(function(d) { return d.data.name; });
-      })
-      .on("mouseout", function(d){
-        __WEBPACK_IMPORTED_MODULE_0_d3__["c" /* selectAll */]("text.node_name").remove();
-      });
-
-    node.append("circle")
-      .attr("r", 2);
-
-    node.append("text")
-        .attr("class", "trace")
-        .attr("dy", 3)
-        .attr("x", function(d) { return d.children ? -8 : 8; })
-        .style("text-anchor", function(d) { return d.children ? "end" : "start"; })
-        .text(function(d) {
-          if (LinkMap.trace(LinkMap.destination).includes(d.data.name)){
-            return d.data.name;
-          }
-        });
+    //
+    // this.tree(root);
+    //
+    // var link = this.canvas.selectAll(".link")
+    //   .data(root.descendants().slice(1))
+    //   .enter()
+    //   .append("path")
+    //   .attr("class", "link")
+    //   .attr("d", function(d) {
+    //     return "M" + d.y + "," + d.x
+    //     + "C" + (d.y + d.parent.y) / 2 + "," + d.x
+    //     + " " + (d.y + d.parent.y) / 2 + "," + d.parent.x
+    //     + " " + d.parent.y + "," + d.parent.x;
+    //
+    //   });
+    //
+    // var node = this.canvas.selectAll(".node")
+    //   .data(root.descendants())
+    //   .enter()
+    //   .append("g")
+    //   .attr("class", function(d) {
+    //     return "node " + (d.children ? "node-internal" : "node-leaf");
+    //   })
+    //   .attr("transform", function(d) { return "translate(" + d.y + "," + d.x + ")"; })
+    //   .on("mouseover", function(d) {
+    //     d3.select(this).raise()
+    //     .append("text")
+    //       .attr("class", "node_name")
+    //       .attr("dy", 3)
+    //       .attr("x", function(d) { return d.children ? -8 : 8; })
+    //       .style("text-anchor", function(d) { return d.children ? "end" : "start"; })
+    //       .text(function(d) { return d.data.name; });
+    //   })
+    //   .on("mouseout", function(d){
+    //     d3.selectAll("text.node_name").remove();
+    //   });
+    //
+    // node.append("circle")
+    //   .attr("r", 2);
+    //
+    // node.append("text")
+    //     .attr("class", "trace")
+    //     .attr("dy", 3)
+    //     .attr("x", function(d) { return d.children ? -8 : 8; })
+    //     .style("text-anchor", function(d) { return d.children ? "end" : "start"; })
+    //     .text(function(d) {
+    //       if (LinkMap.trace(LinkMap.destination).includes(d.data.name)){
+    //         return d.data.name;
+    //       }
+    //     });
   }
 
 }
@@ -9978,7 +9998,6 @@ class TreeVisualization {
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_14_d3_hierarchy__ = __webpack_require__(356);
 /* harmony namespace reexport (by used) */ __webpack_require__.d(__webpack_exports__, "a", function() { return __WEBPACK_IMPORTED_MODULE_14_d3_hierarchy__["a"]; });
 /* harmony namespace reexport (by used) */ __webpack_require__.d(__webpack_exports__, "d", function() { return __WEBPACK_IMPORTED_MODULE_14_d3_hierarchy__["b"]; });
-/* harmony namespace reexport (by used) */ __webpack_require__.d(__webpack_exports__, "e", function() { return __WEBPACK_IMPORTED_MODULE_14_d3_hierarchy__["c"]; });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_15_d3_interpolate__ = __webpack_require__(5);
 /* unused harmony namespace reexport */
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_16_d3_path__ = __webpack_require__(13);
@@ -17882,9 +17901,9 @@ transverseMercatorRaw.invert = function(x, y) {
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__src_partition__ = __webpack_require__(371);
 /* unused harmony reexport partition */
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__src_stratify__ = __webpack_require__(372);
-/* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return __WEBPACK_IMPORTED_MODULE_6__src_stratify__["a"]; });
+/* unused harmony reexport stratify */
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__src_tree__ = __webpack_require__(373);
-/* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "c", function() { return __WEBPACK_IMPORTED_MODULE_7__src_tree__["a"]; });
+/* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return __WEBPACK_IMPORTED_MODULE_7__src_tree__["a"]; });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_8__src_treemap_index__ = __webpack_require__(374);
 /* unused harmony reexport treemap */
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_9__src_treemap_binary__ = __webpack_require__(375);
@@ -18407,7 +18426,7 @@ function defaultParentId(d) {
   return d.parentId;
 }
 
-/* harmony default export */ __webpack_exports__["a"] = (function() {
+/* unused harmony default export */ var _unused_webpack_default_export = (function() {
   var id = defaultId,
       parentId = defaultParentId;
 

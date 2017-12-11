@@ -61,7 +61,7 @@ footer:hover #logos {
 form {
   position: absolute;
   bottom: -90px;
-  background: none;
+  background: white;
   width: 100%;
 }
 
