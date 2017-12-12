@@ -1,8 +1,18 @@
 import * as d3 from "d3";
 
-
 // a big thank you to the following sources for help
 // designing a dynamic d3 tree
+
+// D3 Tips and Tricks v4 by Malcolm Maclean
+
+// this associated gist
+//https://gist.github.com/d3noob/43a860bc0024792f8803bba8ca0d5ecd
+
+// this js fiddle https://jsfiddle.net/a6pLqpxw/8/
+//linked by Rohit Totala on Stack Overflow
+
+// and Corey Ladovsky (https://github.com/coreyladovsky)
+// for working through some examples with me
 
 export default class TreeVisualization {
   constructor(origin = null) {
@@ -25,9 +35,9 @@ export default class TreeVisualization {
 
     this.tree = d3.tree().size([height - 100, width - 100]);
 
-    this.canvas = d3.select("body")
+    this.canvas = d3.select("#main")
       .append("svg")
-      .attr("width", width)
+      .attr("width", 5000)
       .attr("height", height)
       .append("g")
       .attr("transform", `translate(50,50)`);
@@ -52,7 +62,7 @@ export default class TreeVisualization {
     let links = newTree.descendants().slice(1);
 
     this.nodes.forEach((d) => {
-      d.y = d.depth * 180;
+      d.y = d.depth * 300;
     });
 
     let link = this.canvas.selectAll("path.link")
@@ -97,10 +107,10 @@ export default class TreeVisualization {
       .attr("dy", "3px")
       .attr("x", d => d.children ? 10 : -10)
       .attr("text-anchor", d => d.children ? "end" : "start")
-      .text(d => d.title);
+      .text(d => d.data.title);
 
     nodeEnter.append("circle")
-      .attr("r", 2);
+      .attr("r", 1);
 
     let nodeUpdate = nodeEnter.merge(node);
 
@@ -116,16 +126,11 @@ export default class TreeVisualization {
       d.y0 = d.y;
     });
 
-
-
   }
 
-  addLeaf(node) {
+  addLeaf(node, final=false) {
 
     if (this.currentNode.data.count === this.currentNode.data.children.length){
-
-
-
       this.updateTree(node);
       this.idx += 1;
       this.currentNode = this.nodes[this.idx];
@@ -138,14 +143,36 @@ export default class TreeVisualization {
       }
     }
 
+
+
     let nodeObj = Object.assign({}, node);
     nodeObj.parent = this.currentNode;
     nodeObj.count = nodeObj.children.length;
     nodeObj.children = [];
 
+    if (final){
+      if (node.parent !== this.currentNode.data.title) {
+        this.updateTree();
+        this.currentNode = this.nodes.filter(d => d.data.title === node.parent);
+        this.currentNode = this.currentNode[0];
+        nodeObj.parent = this.currentNode;
+        
+        let returnNode = d3.hierarchy(nodeObj);
+        returnNode.depth = this.currentNode.depth + 1;
+        returnNode.height = this.currentNode.height - 1;
+
+        this.currentNode.children = [returnNode];
+        this.currentNode.data.children = [returnNode];
+      }
+
+      this.updateTree();
+      return;
+    }
+
     let returnNode = d3.hierarchy(nodeObj);
     returnNode.depth = this.currentNode.depth + 1;
     returnNode.height = this.currentNode.height - 1;
+
 
     if (!this.currentNode.children){
       this.currentNode.children = [];
@@ -162,25 +189,25 @@ export default class TreeVisualization {
   }
 
   drawCurve(a, b) {
-
-    debugger
-
     return `M${a.y},${a.x} ` +
       `C${(a.y + b.y) / 2}, ${a.x} ` +
       `${(a.y + b.y) / 2},${b.x} ` +
       `${b.y},${b.x}`;
-
   }
 
   clear() {
     this.tree = null;
     this.canvas = null;
+    this.idx = 0;
+    this.count = 0;
+    this.nodes =[];
 
     let existing = document.getElementsByTagName("svg");
+
     if (existing.length > 0){
       existing = existing[0];
-      let body = document.getElementsByTagName("body");
-      body[0].removeChild(existing);
+      document.getElementById("main").removeChild(existing);
     }
+
   }
 }

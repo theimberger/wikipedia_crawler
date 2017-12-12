@@ -57,6 +57,8 @@ const setFirstPage = (pages, correctedTitle) => {
     LinkMap.currentParent = correctedTitle;
     document.getElementById("start_input").value = correctedTitle;
     if (LinkMap.destination !== ""){
+      FetchQue.length = 0;
+      Tree.plant(LinkMap.get(LinkMap.origin));
       Run(pages);
     }
   } else {
@@ -113,6 +115,8 @@ const Run = (pages) => {
     return;
   }
 
+  let finished = LinkMap.currentParent.toLowerCase() === LinkMap.destination.toLowerCase();
+
   var log = document.getElementById('log');
   pages = filterPages(pages);
   LinkMap.get(LinkMap.currentParent).children = pages;
@@ -120,7 +124,7 @@ const Run = (pages) => {
   if (Tree.origin !== LinkMap.origin) {
     Tree.plant(LinkMap.get(LinkMap.origin));
   } else {
-    Tree.addLeaf(LinkMap.get(LinkMap.currentParent));
+    Tree.addLeaf(LinkMap.get(LinkMap.currentParent), finished);
   }
 
   UIUtils.addLi(LinkMap.currentParent, pages);
@@ -137,13 +141,10 @@ const Run = (pages) => {
     i ++;
   }
 
-  if (LinkMap.currentParent.toLowerCase()
-    === LinkMap.destination.toLowerCase()) {
+  if (finished) {
     console.log("FOUND IT");
     console.log(LinkMap.trace(LinkMap.destination));
     FetchQue.length = 0;
-    Tree.drawTree(LinkMap);
-    debugger
     return;
   }
 
@@ -180,7 +181,7 @@ const updateEnd = (pages, correctedTitle) => {
     UIUtils.changeColor("end_input", "black");
   }
   if (FetchQue.length === 0) {
-    UIUtils.hideHeader();
+    UIUtils.toQueryMode();
     AjaxUtils.fetchWikiPage(first.value, Run);
   }
 };
