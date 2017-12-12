@@ -149,17 +149,17 @@ function haversin(x) {
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__src_select__ = __webpack_require__(205);
 /* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "f", function() { return __WEBPACK_IMPORTED_MODULE_6__src_select__["a"]; });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__src_selectAll__ = __webpack_require__(233);
-/* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "g", function() { return __WEBPACK_IMPORTED_MODULE_7__src_selectAll__["a"]; });
+/* unused harmony reexport selectAll */
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_8__src_selection_index__ = __webpack_require__(4);
-/* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "h", function() { return __WEBPACK_IMPORTED_MODULE_8__src_selection_index__["b"]; });
+/* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "g", function() { return __WEBPACK_IMPORTED_MODULE_8__src_selection_index__["b"]; });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_9__src_selector__ = __webpack_require__(56);
-/* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "i", function() { return __WEBPACK_IMPORTED_MODULE_9__src_selector__["a"]; });
+/* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "h", function() { return __WEBPACK_IMPORTED_MODULE_9__src_selector__["a"]; });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_10__src_selectorAll__ = __webpack_require__(103);
-/* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "j", function() { return __WEBPACK_IMPORTED_MODULE_10__src_selectorAll__["a"]; });
+/* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "i", function() { return __WEBPACK_IMPORTED_MODULE_10__src_selectorAll__["a"]; });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_11__src_selection_style__ = __webpack_require__(106);
-/* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "k", function() { return __WEBPACK_IMPORTED_MODULE_11__src_selection_style__["b"]; });
+/* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "j", function() { return __WEBPACK_IMPORTED_MODULE_11__src_selection_style__["b"]; });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_12__src_touch__ = __webpack_require__(234);
-/* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "l", function() { return __WEBPACK_IMPORTED_MODULE_12__src_touch__["a"]; });
+/* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "k", function() { return __WEBPACK_IMPORTED_MODULE_12__src_touch__["a"]; });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_13__src_touches__ = __webpack_require__(235);
 /* unused harmony reexport touches */
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_14__src_window__ = __webpack_require__(57);
@@ -936,14 +936,14 @@ function Transition(groups, parents, name, id) {
 }
 
 function transition(name) {
-  return Object(__WEBPACK_IMPORTED_MODULE_0_d3_selection__["h" /* selection */])().transition(name);
+  return Object(__WEBPACK_IMPORTED_MODULE_0_d3_selection__["g" /* selection */])().transition(name);
 }
 
 function newId() {
   return ++id;
 }
 
-var selection_prototype = __WEBPACK_IMPORTED_MODULE_0_d3_selection__["h" /* selection */].prototype;
+var selection_prototype = __WEBPACK_IMPORTED_MODULE_0_d3_selection__["g" /* selection */].prototype;
 
 Transition.prototype = transition.prototype = {
   constructor: Transition,
@@ -9455,7 +9455,8 @@ const Run = (pages) => {
     LinkMap.add(pages[i]);
     FetchQue.push(RunFactory(pages[i]));
     if (pages[i].toLowerCase() === LinkMap.destination.toLowerCase()) {
-      FetchQue.unshift(RunFactory(pages[i]));
+      FetchQue.length = 0;
+      FetchQue.push(RunFactory(pages[i]));
     }
     i ++;
   }
@@ -9471,7 +9472,7 @@ const Run = (pages) => {
   }
 
   // Tree.render(LinkMap);
-  setTimeout(FetchQue[0], 100);
+  setTimeout(FetchQue[0], 50);
 };
 
 const RunFactory = (title) => () => {
@@ -9790,10 +9791,16 @@ const hashString = (string) => {
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_d3__ = __webpack_require__(177);
 
 
+
+// a big thank you to the following sources for help
+// designing a dynamic d3 tree
+
 class TreeVisualization {
   constructor(origin = null) {
-    this.bodyWidth = window.innerWidth;
-    this.bodyHeight = window.innerHeight;
+
+    this.idx = 0;
+    this.count = 0;
+
     if (origin !== null) {
       this.origin = origin.title;
       this.plant(origin);
@@ -9802,161 +9809,171 @@ class TreeVisualization {
 
   plant(origin){
     this.origin = origin.title;
-    // get the start point for the tree and add a node
-    if (origin === "" || origin === null) {
-      return;
+    this.clear();
+
+    let width = window.innerWidth,
+        height = window.innerHeight;
+
+    this.tree = __WEBPACK_IMPORTED_MODULE_0_d3__["c" /* tree */]().size([height - 100, width - 100]);
+
+    this.canvas = __WEBPACK_IMPORTED_MODULE_0_d3__["b" /* select */]("body")
+      .append("svg")
+      .attr("width", width)
+      .attr("height", height)
+      .append("g")
+      .attr("transform", `translate(50,50)`);
+
+    let rootNode = Object.assign({}, origin);
+    rootNode.count = rootNode.children.length;
+    rootNode.children = [];
+
+    this.root = __WEBPACK_IMPORTED_MODULE_0_d3__["a" /* hierarchy */](rootNode, d => d.children);
+    this.root.x0 = height / 2;
+    this.root.y0 = width / 2;
+
+
+
+    this.currentNode = this.root;
+    this.updateTree();
+  }
+
+  updateTree(leaf) {
+    let newTree = this.tree(this.root);
+    this.nodes = newTree.descendants();
+    let links = newTree.descendants().slice(1);
+
+    this.nodes.forEach((d) => {
+      d.y = d.depth * 180;
+    });
+
+    let link = this.canvas.selectAll("path.link")
+        .data(links, d => d.id);
+
+    let linkEnter = link.enter().insert("path", "g")
+      .attr("class", "link")
+      .attr("d", (d) => {
+        let cords = {
+          x: this.currentNode.x0,
+          y: this.currentNode.y0
+        };
+        return this.drawCurve(cords, cords);
+      });
+
+    let linkUpdate = linkEnter.merge(link);
+    linkUpdate.transition()
+      .duration(200)
+      .attr("d", (d) => this.drawCurve(d, d.data.parent));
+
+    var linkExit = link.exit().transition()
+      .duration(200)
+      .attr("d", (d) => {
+        let cords = {
+          x: this.currentNode.x0,
+          y: this.currentNode.y0
+        };
+        return this.drawCurve(cords, cords);
+      })
+      .remove();
+
+    let node = this.canvas.selectAll("g.node")
+      .data(this.nodes, d => d.id || (d.id = this.count++));
+
+    let nodeEnter = node.enter().append("g")
+      .attr("class", "node")
+      .attr("transform", d => (
+        `translate(${this.currentNode.y0},${this.currentNode.x0})`
+      ));
+
+    nodeEnter.append("text")
+      .attr("dy", "3px")
+      .attr("x", d => d.children ? 10 : -10)
+      .attr("text-anchor", d => d.children ? "end" : "start")
+      .text(d => d.title);
+
+    nodeEnter.append("circle")
+      .attr("r", 2);
+
+    let nodeUpdate = nodeEnter.merge(node);
+
+
+    nodeUpdate.transition()
+      .duration(200)
+      .attr("transform", d => (
+        `translate(${d.y},${d.x})`
+      ));
+
+    this.nodes.forEach((d) => {
+      d.x0 = d.x;
+      d.y0 = d.y;
+    });
+
+
+
+  }
+
+  addLeaf(node) {
+
+    if (this.currentNode.data.count === this.currentNode.data.children.length){
+
+
+
+      this.updateTree(node);
+      this.idx += 1;
+      this.currentNode = this.nodes[this.idx];
+      while (this.currentNode.data.count === 0) {
+        if (this.idx >= this.nodes.length) {
+          break;
+        }
+        this.idx += 1;
+        this.currentNode = this.nodes[this.idx];
+      }
     }
-    this.data = Object.assign({}, origin);
-    this.data.parent = null;
+
+    let nodeObj = Object.assign({}, node);
+    nodeObj.parent = this.currentNode;
+    nodeObj.count = nodeObj.children.length;
+    nodeObj.children = [];
+
+    let returnNode = __WEBPACK_IMPORTED_MODULE_0_d3__["a" /* hierarchy */](nodeObj);
+    returnNode.depth = this.currentNode.depth + 1;
+    returnNode.height = this.currentNode.height - 1;
+
+    if (!this.currentNode.children){
+      this.currentNode.children = [];
+      this.currentNode.data.children = [];
+    }
+
+    this.currentNode.children.push(returnNode);
+    this.currentNode.data.children.push(returnNode.data);
 
 
-    this.data = __WEBPACK_IMPORTED_MODULE_0_d3__["a" /* hierarchy */](this.data);
+  }
 
-    //   .id((d) => d.title)
-    //   .parentId((d) => d.parent)([this.data]);
-    // this.data.each(function(d){ d.title = d.id; });
+  drawTree() {
+  }
 
-    // reset previous data, if any
-    this.count = 0;
+  drawCurve(a, b) {
+
+    debugger
+
+    return `M${a.y},${a.x} ` +
+      `C${(a.y + b.y) / 2}, ${a.x} ` +
+      `${(a.y + b.y) / 2},${b.x} ` +
+      `${b.y},${b.x}`;
+
+  }
+
+  clear() {
     this.tree = null;
     this.canvas = null;
+
     let existing = document.getElementsByTagName("svg");
     if (existing.length > 0){
       existing = existing[0];
       let body = document.getElementsByTagName("body");
       body[0].removeChild(existing);
     }
-
-    // create tree and append new svg
-    this.tree = __WEBPACK_IMPORTED_MODULE_0_d3__["d" /* tree */]()
-      .size([this.bodyHeight -150, this.bodyWidth - 500]);
-
-    this.nodes = __WEBPACK_IMPORTED_MODULE_0_d3__["a" /* hierarchy */](this.data);
-    this.nodes = this.tree(this.nodes);
-    this.currentParent = this.nodes
-    this.childCount = this.nodes.children.length;
-
-    this.canvas = __WEBPACK_IMPORTED_MODULE_0_d3__["b" /* select */]("body").append("svg")
-      .attr("width", this.bodyWidth)
-      .attr("height", this.bodyHeight);
-
-    this.g = this.canvas.append("g")
-      .attr("transform", "translate(100, 100)")
-      .attr("class", "main");
-
-    this.link = this.g.selectAll(".link")
-      .data(this.nodes.descendants().slice(1))
-      .enter().append("path")
-        .attr("class", "link")
-        .attr("d", (d) => {
-          return `M${d.y},${d.x} ` +
-            `C${(d.y + d.parent.y)/2},${d.x} ` +
-            `${(d.y + d.parent.y / 2)},${d.parent.x} ` +
-            `${d.parent.y}, ${d.parent.x}`;
-        });
-
-    this.node = this.g.selectAll(".node")
-      .data(this.nodes.descendants())
-      .enter().append("g")
-        .attr("class", (d) => {
-          return "node " +
-            (d.children ? "internal_node" : "leaf_node");
-        })
-        .attr("transform", (d) => {
-          return `translate(${d.y}, ${d.x})`;
-        });
-      this.node.append("circle")
-        .attr("r", 2);
-      this.node.on("mouseover", function(d) {
-          __WEBPACK_IMPORTED_MODULE_0_d3__["b" /* select */](this).raise()
-          .append("text")
-            .attr("class", "node_name")
-            .attr("dy", 3)
-            .attr("x", function(d) { return d.children ? -8 : 8; })
-            .style("text-anchor",
-              function(d) { return d.children ? "end" : "start"; })
-            .text(function(d) { return d.data.name; });
-        })
-        .on("mouseout", function(d){
-          __WEBPACK_IMPORTED_MODULE_0_d3__["c" /* selectAll */]("text.node_name").remove();
-        });
   }
-
-  addLeaf(node) {
-    debugger
-  }
-
-
-
-  drawTree(LinkMap) {
-    //this function and associated css are heavily based on this codepen
-    // https://codepen.io/netkuy/pen/qZGdoj
-    // by Yuki Kodama
-
-    //
-    // this.canvas = d3.select("body").append("svg")
-    //   .attr("width", this.bodyWidth)
-    //   .attr("height", this.bodyHeight)
-    //   .append("g")
-    //   .attr("transform", "translate(100, 100)")
-    //   .attr("class", "main");
-
-
-
-    // this.tree = d3.tree().size([this.bodyHeight -150, this.bodyWidth - 500]);
-    // var root = d3.hierarchy(this.data);
-    //
-    // this.tree(root);
-    //
-    // var link = this.canvas.selectAll(".link")
-    //   .data(root.descendants().slice(1))
-    //   .enter()
-    //   .append("path")
-    //   .attr("class", "link")
-    //   .attr("d", function(d) {
-    //     return "M" + d.y + "," + d.x
-    //     + "C" + (d.y + d.parent.y) / 2 + "," + d.x
-    //     + " " + (d.y + d.parent.y) / 2 + "," + d.parent.x
-    //     + " " + d.parent.y + "," + d.parent.x;
-    //
-    //   });
-    //
-    // var node = this.canvas.selectAll(".node")
-    //   .data(root.descendants())
-    //   .enter()
-    //   .append("g")
-    //   .attr("class", function(d) {
-    //     return "node " + (d.children ? "node-internal" : "node-leaf");
-    //   })
-    //   .attr("transform", function(d) { return "translate(" + d.y + "," + d.x + ")"; })
-    //   .on("mouseover", function(d) {
-    //     d3.select(this).raise()
-    //     .append("text")
-    //       .attr("class", "node_name")
-    //       .attr("dy", 3)
-    //       .attr("x", function(d) { return d.children ? -8 : 8; })
-    //       .style("text-anchor", function(d) { return d.children ? "end" : "start"; })
-    //       .text(function(d) { return d.data.name; });
-    //   })
-    //   .on("mouseout", function(d){
-    //     d3.selectAll("text.node_name").remove();
-    //   });
-    //
-    // node.append("circle")
-    //   .attr("r", 2);
-    //
-    // node.append("text")
-    //     .attr("class", "trace")
-    //     .attr("dy", 3)
-    //     .attr("x", function(d) { return d.children ? -8 : 8; })
-    //     .style("text-anchor", function(d) { return d.children ? "end" : "start"; })
-    //     .text(function(d) {
-    //       if (LinkMap.trace(LinkMap.destination).includes(d.data.name)){
-    //         return d.data.name;
-    //       }
-    //     });
-  }
-
 }
 /* harmony export (immutable) */ __webpack_exports__["a"] = TreeVisualization;
 
@@ -9997,7 +10014,7 @@ class TreeVisualization {
 /* unused harmony namespace reexport */
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_14_d3_hierarchy__ = __webpack_require__(356);
 /* harmony namespace reexport (by used) */ __webpack_require__.d(__webpack_exports__, "a", function() { return __WEBPACK_IMPORTED_MODULE_14_d3_hierarchy__["a"]; });
-/* harmony namespace reexport (by used) */ __webpack_require__.d(__webpack_exports__, "d", function() { return __WEBPACK_IMPORTED_MODULE_14_d3_hierarchy__["b"]; });
+/* harmony namespace reexport (by used) */ __webpack_require__.d(__webpack_exports__, "c", function() { return __WEBPACK_IMPORTED_MODULE_14_d3_hierarchy__["b"]; });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_15_d3_interpolate__ = __webpack_require__(5);
 /* unused harmony namespace reexport */
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_16_d3_path__ = __webpack_require__(13);
@@ -10016,7 +10033,6 @@ class TreeVisualization {
 /* unused harmony namespace reexport */
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_23_d3_selection__ = __webpack_require__(1);
 /* harmony namespace reexport (by used) */ __webpack_require__.d(__webpack_exports__, "b", function() { return __WEBPACK_IMPORTED_MODULE_23_d3_selection__["f"]; });
-/* harmony namespace reexport (by used) */ __webpack_require__.d(__webpack_exports__, "c", function() { return __WEBPACK_IMPORTED_MODULE_23_d3_selection__["g"]; });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_24_d3_shape__ = __webpack_require__(433);
 /* unused harmony namespace reexport */
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_25_d3_time__ = __webpack_require__(43);
@@ -11502,7 +11518,7 @@ function defaultTouchable() {
         n = touches.length, i, gesture;
 
     for (i = 0; i < n; ++i) {
-      if (gesture = beforestart(touches[i].identifier, c, __WEBPACK_IMPORTED_MODULE_1_d3_selection__["l" /* touch */], this, arguments)) {
+      if (gesture = beforestart(touches[i].identifier, c, __WEBPACK_IMPORTED_MODULE_1_d3_selection__["k" /* touch */], this, arguments)) {
         Object(__WEBPACK_IMPORTED_MODULE_3__noevent__["b" /* nopropagation */])();
         gesture("start");
       }
@@ -12435,7 +12451,7 @@ function dispatchFunction(type, params) {
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__selection_index__ = __webpack_require__(4);
 
 
-/* harmony default export */ __webpack_exports__["a"] = (function(selector) {
+/* unused harmony default export */ var _unused_webpack_default_export = (function(selector) {
   return typeof selector === "string"
       ? new __WEBPACK_IMPORTED_MODULE_0__selection_index__["a" /* Selection */]([document.querySelectorAll(selector)], [document.documentElement])
       : new __WEBPACK_IMPORTED_MODULE_0__selection_index__["a" /* Selection */]([selector == null ? [] : selector], __WEBPACK_IMPORTED_MODULE_0__selection_index__["c" /* root */]);
@@ -13095,8 +13111,8 @@ var cubehelixLong = cubehelix(__WEBPACK_IMPORTED_MODULE_1__color__["a" /* defaul
 
 
 
-__WEBPACK_IMPORTED_MODULE_0_d3_selection__["h" /* selection */].prototype.interrupt = __WEBPACK_IMPORTED_MODULE_1__interrupt__["a" /* default */];
-__WEBPACK_IMPORTED_MODULE_0_d3_selection__["h" /* selection */].prototype.transition = __WEBPACK_IMPORTED_MODULE_2__transition__["a" /* default */];
+__WEBPACK_IMPORTED_MODULE_0_d3_selection__["g" /* selection */].prototype.interrupt = __WEBPACK_IMPORTED_MODULE_1__interrupt__["a" /* default */];
+__WEBPACK_IMPORTED_MODULE_0_d3_selection__["g" /* selection */].prototype.transition = __WEBPACK_IMPORTED_MODULE_2__transition__["a" /* default */];
 
 
 /***/ }),
@@ -13544,7 +13560,7 @@ function removeFunction(id) {
   var name = this._name,
       id = this._id;
 
-  if (typeof select !== "function") select = Object(__WEBPACK_IMPORTED_MODULE_0_d3_selection__["i" /* selector */])(select);
+  if (typeof select !== "function") select = Object(__WEBPACK_IMPORTED_MODULE_0_d3_selection__["h" /* selector */])(select);
 
   for (var groups = this._groups, m = groups.length, subgroups = new Array(m), j = 0; j < m; ++j) {
     for (var group = groups[j], n = group.length, subgroup = subgroups[j] = new Array(n), node, subnode, i = 0; i < n; ++i) {
@@ -13576,7 +13592,7 @@ function removeFunction(id) {
   var name = this._name,
       id = this._id;
 
-  if (typeof select !== "function") select = Object(__WEBPACK_IMPORTED_MODULE_0_d3_selection__["j" /* selectorAll */])(select);
+  if (typeof select !== "function") select = Object(__WEBPACK_IMPORTED_MODULE_0_d3_selection__["i" /* selectorAll */])(select);
 
   for (var groups = this._groups, m = groups.length, subgroups = [], parents = [], j = 0; j < m; ++j) {
     for (var group = groups[j], n = group.length, node, i = 0; i < n; ++i) {
@@ -13604,7 +13620,7 @@ function removeFunction(id) {
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_d3_selection__ = __webpack_require__(1);
 
 
-var Selection = __WEBPACK_IMPORTED_MODULE_0_d3_selection__["h" /* selection */].prototype.constructor;
+var Selection = __WEBPACK_IMPORTED_MODULE_0_d3_selection__["g" /* selection */].prototype.constructor;
 
 /* harmony default export */ __webpack_exports__["a"] = (function() {
   return new Selection(this._groups, this._parents);
@@ -13630,8 +13646,8 @@ function styleRemove(name, interpolate) {
       value10,
       interpolate0;
   return function() {
-    var value0 = Object(__WEBPACK_IMPORTED_MODULE_1_d3_selection__["k" /* style */])(this, name),
-        value1 = (this.style.removeProperty(name), Object(__WEBPACK_IMPORTED_MODULE_1_d3_selection__["k" /* style */])(this, name));
+    var value0 = Object(__WEBPACK_IMPORTED_MODULE_1_d3_selection__["j" /* style */])(this, name),
+        value1 = (this.style.removeProperty(name), Object(__WEBPACK_IMPORTED_MODULE_1_d3_selection__["j" /* style */])(this, name));
     return value0 === value1 ? null
         : value0 === value00 && value1 === value10 ? interpolate0
         : interpolate0 = interpolate(value00 = value0, value10 = value1);
@@ -13648,7 +13664,7 @@ function styleConstant(name, interpolate, value1) {
   var value00,
       interpolate0;
   return function() {
-    var value0 = Object(__WEBPACK_IMPORTED_MODULE_1_d3_selection__["k" /* style */])(this, name);
+    var value0 = Object(__WEBPACK_IMPORTED_MODULE_1_d3_selection__["j" /* style */])(this, name);
     return value0 === value1 ? null
         : value0 === value00 ? interpolate0
         : interpolate0 = interpolate(value00 = value0, value1);
@@ -13660,9 +13676,9 @@ function styleFunction(name, interpolate, value) {
       value10,
       interpolate0;
   return function() {
-    var value0 = Object(__WEBPACK_IMPORTED_MODULE_1_d3_selection__["k" /* style */])(this, name),
+    var value0 = Object(__WEBPACK_IMPORTED_MODULE_1_d3_selection__["j" /* style */])(this, name),
         value1 = value(this);
-    if (value1 == null) value1 = (this.style.removeProperty(name), Object(__WEBPACK_IMPORTED_MODULE_1_d3_selection__["k" /* style */])(this, name));
+    if (value1 == null) value1 = (this.style.removeProperty(name), Object(__WEBPACK_IMPORTED_MODULE_1_d3_selection__["j" /* style */])(this, name));
     return value0 === value1 ? null
         : value0 === value00 && value1 === value10 ? interpolate0
         : interpolate0 = interpolate(value00 = value0, value10 = value1);
@@ -22966,7 +22982,7 @@ function defaultTouchable() {
 
     Object(__WEBPACK_IMPORTED_MODULE_8__noevent__["b" /* nopropagation */])();
     for (i = 0; i < n; ++i) {
-      t = touches[i], p = Object(__WEBPACK_IMPORTED_MODULE_3_d3_selection__["l" /* touch */])(this, touches, t.identifier);
+      t = touches[i], p = Object(__WEBPACK_IMPORTED_MODULE_3_d3_selection__["k" /* touch */])(this, touches, t.identifier);
       p = [p, this.__zoom.invert(p), t.identifier];
       if (!g.touch0) g.touch0 = p, started = true;
       else if (!g.touch1) g.touch1 = p;
@@ -22998,7 +23014,7 @@ function defaultTouchable() {
     Object(__WEBPACK_IMPORTED_MODULE_8__noevent__["a" /* default */])();
     if (touchstarting) touchstarting = clearTimeout(touchstarting);
     for (i = 0; i < n; ++i) {
-      t = touches[i], p = Object(__WEBPACK_IMPORTED_MODULE_3_d3_selection__["l" /* touch */])(this, touches, t.identifier);
+      t = touches[i], p = Object(__WEBPACK_IMPORTED_MODULE_3_d3_selection__["k" /* touch */])(this, touches, t.identifier);
       if (g.touch0 && g.touch0[2] === t.identifier) g.touch0[0] = p;
       else if (g.touch1 && g.touch1[2] === t.identifier) g.touch1[0] = p;
     }

@@ -131,7 +131,8 @@ const Run = (pages) => {
     LinkMap.add(pages[i]);
     FetchQue.push(RunFactory(pages[i]));
     if (pages[i].toLowerCase() === LinkMap.destination.toLowerCase()) {
-      FetchQue.unshift(RunFactory(pages[i]));
+      FetchQue.length = 0;
+      FetchQue.push(RunFactory(pages[i]));
     }
     i ++;
   }
@@ -147,7 +148,7 @@ const Run = (pages) => {
   }
 
   // Tree.render(LinkMap);
-  setTimeout(FetchQue[0], 100);
+  setTimeout(FetchQue[0], 50);
 };
 
 const RunFactory = (title) => () => {
