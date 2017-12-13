@@ -3,8 +3,71 @@
 
 ## About
 Wikipedia Crawler is a bot which finds a path between two pages on Wikipedia as given by a user.
-This path is created by selecting sequential links on each page.  The path is then visualized as a node tree.
+This path is created by selecting sequential links on each page.  The path is then visualized as a node tree.  Note: there is a
+setTimeout on API queries for wikipedia in the lifecycle file (line 153) because without this short break the app can feel
+pretty jarring.
 
-### Todos
+## Notable Code
+The Crawler uses a custom data structure called a PolyHash (see this file in the javascript/modules folder) to ensure constant speed look-up
+and addition.  Notable methods for this structure are #get() and #add() shown below.
+
+```JavaScript
+class PolyHash{
+
+  ...
+
+  add(title, parent = this.currentParent, children = []) {
+    if (this.origin === "") {
+      this.origin = title;
+      this.currentParent = title;
+    }
+
+    let addition = {
+      title: title,
+      parent: parent,
+      children: children
+    };
+
+    let bucket = Math.floor(this.hashString(title) % this.map.length);
+      // hashString is a custom hash function
+    if (this.map[bucket] === null) {
+      this.map[bucket] = [];
+    }
+    this.map[bucket].push(addition);
+    this.count ++;
+    if (this.count > this.map.length) {
+      this.resizeMap();
+    }
+  }
+
+  ...
+
+  get(string) {
+    let match = {};
+    let bucket = Math.floor(this.hashString(string) % this.map.length);
+
+    if (this.map[bucket] === null) {
+        return false;
+    }
+
+    this.map[bucket].forEach((node) => {
+      if (node.title === string) {
+        match = node;
+      }
+    });
+
+    if (match.title === string){
+      return match;
+    }
+    return false;
+  }
+
+  ...
+
+}
+
+```
+
+## Todos
 Select the shortest path by first getting a path and then re-running the set of pages with the found path as a limit.
 If a shorter path is found it's returned and then the crawl is run again until the shortest path is found.
