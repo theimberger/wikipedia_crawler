@@ -69,12 +69,10 @@ class PolyHash{
 ```
 
 Other notable code includes the RunFactory method, which manages AJAX requests.  Queries are stored in the FetchQue
-and then are fired off sequentially.
+and then are fired off sequentially using a setTimeout.
 
 ``` JavaScript
-  // RunFactory is called elsewhere in the code and is given the title of a page to query
-  // the result of RunFactory is pushed into the FetchQue array.
-  
+
   const RunFactory = (title) => () => {
     LinkMap.currentParent = title;
     AjaxUtils.fetchWikiPage(title, Run);
