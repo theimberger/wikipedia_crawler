@@ -83,12 +83,12 @@ export default class PolyHash {
     return true;
   }
 
-  reset(newTarget) {
+  reset(newOrigin) {
     this.map = [];
     this.map = Array(1000).fill(null);
-    this.origin = newTarget;
+    this.origin = newOrigin;
     // this.destination = "";
-    this.currentParent = newTarget;
+    this.currentParent = newOrigin;
     this.count = 0;
   }
 }

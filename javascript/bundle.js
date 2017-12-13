@@ -9382,7 +9382,7 @@ const setFirstPage = (pages, correctedTitle) => {
     document.getElementById("start_input").value = correctedTitle;
     if (LinkMap.destination !== ""){
       FetchQue.length = 0;
-      Tree.plant(LinkMap.get(LinkMap.origin));
+      Tree.origin = "";
       Run(pages);
     }
   } else {
@@ -9473,7 +9473,7 @@ const Run = (pages) => {
   }
 
   // Tree.render(LinkMap);
-  setTimeout(FetchQue[0], 50);
+  setTimeout(FetchQue[0], 200);
 };
 
 const RunFactory = (title) => () => {
@@ -9487,6 +9487,7 @@ const updateEnd = (pages, correctedTitle) => {
   if (LinkMap.destination !== "") {
     LinkMap.reset(first.value);
     LinkMap.add(first.value);
+    Tree.origin = "";
     document.getElementById("log").innerHTML = "";
     FetchQue.length = 0;
   }
@@ -9517,6 +9518,13 @@ const updateEnd = (pages, correctedTitle) => {
 
 "use strict";
 const toQueryMode = () => {
+  let body = document.getElementsByTagName("body");
+  let header = document.getElementsByTagName("form");
+  body = body[0];
+  header = header[0];
+  body.className = "query_mode";
+  header.className = "query_mode";
+  document.getElementById("log").className = "query_mode";
   hideHeader();
 };
 /* harmony export (immutable) */ __webpack_exports__["e"] = toQueryMode;
@@ -9760,12 +9768,12 @@ class PolyHash {
     return true;
   }
 
-  reset(newTarget) {
+  reset(newOrigin) {
     this.map = [];
     this.map = Array(1000).fill(null);
-    this.origin = newTarget;
+    this.origin = newOrigin;
     // this.destination = "";
-    this.currentParent = newTarget;
+    this.currentParent = newOrigin;
     this.count = 0;
   }
 }
@@ -9826,7 +9834,7 @@ class TreeVisualization {
     let width = window.innerWidth,
         height = window.innerHeight;
 
-    this.tree = __WEBPACK_IMPORTED_MODULE_0_d3__["c" /* tree */]().size([height - 100, width - 100]);
+    this.tree = __WEBPACK_IMPORTED_MODULE_0_d3__["c" /* tree */]().size([height - 100, width - 500]);
 
     this.canvas = __WEBPACK_IMPORTED_MODULE_0_d3__["b" /* select */]("#main")
       .append("svg")
@@ -9854,9 +9862,9 @@ class TreeVisualization {
     this.nodes = newTree.descendants();
     let links = newTree.descendants().slice(1);
 
-    this.nodes.forEach((d) => {
-      d.y = d.depth * 300;
-    });
+    // this.nodes.forEach((d) => {
+    //   d.y = d.depth * 200;
+    // });
 
     let link = this.canvas.selectAll("path.link")
         .data(links, d => d.id);
@@ -9875,6 +9883,12 @@ class TreeVisualization {
     linkUpdate.transition()
       .duration(200)
       .attr("d", (d) => this.drawCurve(d, d.data.parent));
+
+    linkUpdate.transition()
+      .duration(500)
+      .delay(150)
+      .style("stroke", "#333");
+
 
     var linkExit = link.exit().transition()
       .duration(200)
@@ -9900,7 +9914,11 @@ class TreeVisualization {
       .attr("dy", "3px")
       .attr("x", d => d.children ? 10 : -10)
       .attr("text-anchor", d => d.children ? "end" : "start")
-      .text(d => d.data.title);
+      .text(d => d.data.title)
+      .transition()
+      .delay(200)
+      .duration(1000)
+      .style("fill", "#333");
 
     nodeEnter.append("circle")
       .attr("r", 1);
@@ -9949,7 +9967,7 @@ class TreeVisualization {
         this.currentNode = this.nodes.filter(d => d.data.title === node.parent);
         this.currentNode = this.currentNode[0];
         nodeObj.parent = this.currentNode;
-        
+
         let returnNode = __WEBPACK_IMPORTED_MODULE_0_d3__["a" /* hierarchy */](nodeObj);
         returnNode.depth = this.currentNode.depth + 1;
         returnNode.height = this.currentNode.height - 1;

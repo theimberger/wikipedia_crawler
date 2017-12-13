@@ -58,7 +58,7 @@ const setFirstPage = (pages, correctedTitle) => {
     document.getElementById("start_input").value = correctedTitle;
     if (LinkMap.destination !== ""){
       FetchQue.length = 0;
-      Tree.plant(LinkMap.get(LinkMap.origin));
+      Tree.origin = "";
       Run(pages);
     }
   } else {
@@ -149,7 +149,7 @@ const Run = (pages) => {
   }
 
   // Tree.render(LinkMap);
-  setTimeout(FetchQue[0], 50);
+  setTimeout(FetchQue[0], 200);
 };
 
 const RunFactory = (title) => () => {
@@ -163,6 +163,7 @@ const updateEnd = (pages, correctedTitle) => {
   if (LinkMap.destination !== "") {
     LinkMap.reset(first.value);
     LinkMap.add(first.value);
+    Tree.origin = "";
     document.getElementById("log").innerHTML = "";
     FetchQue.length = 0;
   }

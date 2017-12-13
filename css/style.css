@@ -5,10 +5,14 @@ body, HTML, input {
   overflow: hidden;
 }
 
+body.query_mode {
+  background: black;
+}
+
 #main {
   position: fixed;
   top: 0;
-  bottom: 0;
+  bottom: -20px;
   right: 0;
   left: 0;
   overflow-x: scroll;
@@ -23,6 +27,7 @@ header {
   transition: top 0.75s;
   z-index: 5;
 }
+
 
 footer {
   position: absolute;
@@ -71,6 +76,10 @@ form {
   width: 100%;
 }
 
+header.query_mode form {
+  color: black;
+}
+
 input {
   background: none;
   margin-top: 10px;
@@ -82,6 +91,14 @@ input {
   width: 100%;
 }
 
+form.query_mode input {
+  color: #222 !important;
+  border-bottom: 1px solid #222;
+}
+form.query_mode:hover input {
+  color: white !important;
+  border-bottom: 1px solid white !important;
+}
 
 #log-wrapper {
   position: absolute;
@@ -100,7 +117,23 @@ input {
   min-height: -webkit-min-content;
   font-size: 9px;
   color: #aaa;
+  z-index: 3;
 }
+
+#log.query_mode {
+  color: #111;
+  z-index: 1;
+}
+
+#log.query_mode:hover {
+  color: #aaa;
+  z-index: 3;
+}
+
+#log.query_mode:hover .bold {
+  color: white;
+}
+
 
 li {
   list-style-type: none;
@@ -161,19 +194,19 @@ li {
   border-radius: 50%;
 }
 
-/*styles below are from a codepen, see https://codepen.io/netkuy/pen/qZGdoj*/
-
 .node circle {
   fill: black;
 }
 
 .node text {
   font: 10px sans-serif;
+  fill: white;
+  cursor: default;
 }
 
 .node text.trace {
   font-size: 10px;
-  background-color: black;
+  background-color: white;
   color: green !important;
 }
 
@@ -187,7 +220,15 @@ li {
 
 .link {
   fill: none;
-  stroke: #ccc;
+  stroke: white;
   stroke-opacity: 0.4;
   stroke-width: 1px;
+}
+
+.node text:hover {
+  fill: white !important;
+}
+
+.link:hover {
+  stroke: white !important;
 }

@@ -33,7 +33,7 @@ export default class TreeVisualization {
     let width = window.innerWidth,
         height = window.innerHeight;
 
-    this.tree = d3.tree().size([height - 100, width - 100]);
+    this.tree = d3.tree().size([height - 100, width - 500]);
 
     this.canvas = d3.select("#main")
       .append("svg")
@@ -61,9 +61,9 @@ export default class TreeVisualization {
     this.nodes = newTree.descendants();
     let links = newTree.descendants().slice(1);
 
-    this.nodes.forEach((d) => {
-      d.y = d.depth * 300;
-    });
+    // this.nodes.forEach((d) => {
+    //   d.y = d.depth * 200;
+    // });
 
     let link = this.canvas.selectAll("path.link")
         .data(links, d => d.id);
@@ -82,6 +82,12 @@ export default class TreeVisualization {
     linkUpdate.transition()
       .duration(200)
       .attr("d", (d) => this.drawCurve(d, d.data.parent));
+
+    linkUpdate.transition()
+      .duration(500)
+      .delay(150)
+      .style("stroke", "#333");
+
 
     var linkExit = link.exit().transition()
       .duration(200)
@@ -107,7 +113,11 @@ export default class TreeVisualization {
       .attr("dy", "3px")
       .attr("x", d => d.children ? 10 : -10)
       .attr("text-anchor", d => d.children ? "end" : "start")
-      .text(d => d.data.title);
+      .text(d => d.data.title)
+      .transition()
+      .delay(200)
+      .duration(1000)
+      .style("fill", "#333");
 
     nodeEnter.append("circle")
       .attr("r", 1);
@@ -156,7 +166,7 @@ export default class TreeVisualization {
         this.currentNode = this.nodes.filter(d => d.data.title === node.parent);
         this.currentNode = this.currentNode[0];
         nodeObj.parent = this.currentNode;
-        
+
         let returnNode = d3.hierarchy(nodeObj);
         returnNode.depth = this.currentNode.depth + 1;
         returnNode.height = this.currentNode.height - 1;

@@ -1,4 +1,11 @@
 export const toQueryMode = () => {
+  let body = document.getElementsByTagName("body");
+  let header = document.getElementsByTagName("form");
+  body = body[0];
+  header = header[0];
+  body.className = "query_mode";
+  header.className = "query_mode";
+  document.getElementById("log").className = "query_mode";
   hideHeader();
 };
 
