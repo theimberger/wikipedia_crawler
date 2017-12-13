@@ -47,6 +47,7 @@ export default class PolyHash {
   changeParent(parent) {
     this.currentParent = parent;
   }
+  
   get(string) {
     let match = {};
     let bucket = Math.floor(this.hashString(string) % this.map.length);
