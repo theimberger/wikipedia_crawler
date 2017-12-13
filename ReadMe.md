@@ -68,6 +68,20 @@ class PolyHash{
 
 ```
 
+Other notable code includes the RunFactory method, which manages AJAX requests.  Queries are stored in the FetchQue
+and then are fired off sequentially.
+
+``` JavaScript
+  // RunFactory is called elsewhere in the code and is given the title of a page to query
+  // the result of RunFactory is pushed into the FetchQue array.
+  
+  const RunFactory = (title) => () => {
+    LinkMap.currentParent = title;
+    AjaxUtils.fetchWikiPage(title, Run);
+    FetchQue.shift();
+  };
+```
+
 ## Todos
 Select the shortest path by first getting a path and then re-running the set of pages with the found path as a limit.
 If a shorter path is found it's returned and then the crawl is run again until the shortest path is found.
