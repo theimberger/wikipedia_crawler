@@ -1,6 +1,6 @@
 export default class PolyHash {
   constructor() {
-    this.map = Array(1000).fill(null);
+    this.map = Array(200).fill(null);
     this.origin = "";
     this.destination = "";
     this.currentParent = "";
@@ -19,7 +19,7 @@ export default class PolyHash {
       children: children
     };
 
-    let bucket = Math.floor(hashString(title) % this.map.length);
+    let bucket = Math.floor(this.hashString(title) % this.map.length);
     if (this.map[bucket] === null) {
       this.map[bucket] = [];
     }
@@ -31,7 +31,17 @@ export default class PolyHash {
   }
 
   resizeMap() {
-    //for now this'll do nothing
+    let temp = [];
+    this.map.forEach((bucket) => {
+      if (bucket) temp.push(...bucket);
+    });
+
+    this.map = Array(this.map.length * 2).fill(null);
+    let bucket;
+    temp.forEach((obj) => {
+      bucket = Math.floor(this.hashString(obj.title) % this.map.length);
+      this.map[bucket] ? this.map[bucket].push(obj) : this.map[bucket] = [obj];
+    });
   }
 
   changeParent(parent) {
@@ -39,7 +49,7 @@ export default class PolyHash {
   }
   get(string) {
     let match = {};
-    let bucket = Math.floor(hashString(string) % this.map.length);
+    let bucket = Math.floor(this.hashString(string) % this.map.length);
 
     if (this.map[bucket] === null) {
         return false;
@@ -85,22 +95,23 @@ export default class PolyHash {
 
   reset(newOrigin) {
     this.map = [];
-    this.map = Array(1000).fill(null);
+    this.map = Array(200).fill(null);
     this.origin = newOrigin;
     // this.destination = "";
     this.currentParent = newOrigin;
     this.count = 0;
   }
-}
 
-const hashString = (string) => {
-  var hash = 1;
-  let i = 0;
-  while (i < string.length) {
-    hash += string.charCodeAt(i);
-    i ++;
+  hashString(string) {
+    let hash = 1,
+        i = 0;
+
+    while (i < string.length) {
+      hash += string.charCodeAt(i);
+      i ++;
+    }
+
+    hash = Math.floor(hash * Math.PI * 100000);
+    return Math.abs(hash);
   }
-
-  hash = Math.floor(hash * Math.PI * 100000);
-  return Math.abs(hash);
-};
+}

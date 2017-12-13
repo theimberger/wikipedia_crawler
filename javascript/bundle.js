@@ -9419,10 +9419,12 @@ const filterPages = (pages) => {
       i ++;
       continue;
     }
+
     if ((50 * Math.random()) + frequency > 50) {
       filtered.push(pages[i]);
       LinkMap.add(pages[i]);
     }
+
     i ++;
   }
 
@@ -9456,7 +9458,6 @@ const Run = (pages) => {
   let i = 0;
 
   while (i < pages.length) {
-    LinkMap.add(pages[i]);
     FetchQue.push(RunFactory(pages[i]));
     if (pages[i].toLowerCase() === LinkMap.destination.toLowerCase()) {
       FetchQue.length = 0;
@@ -9472,8 +9473,7 @@ const Run = (pages) => {
     return;
   }
 
-  // Tree.render(LinkMap);
-  setTimeout(FetchQue[0], 200);
+  setTimeout(FetchQue[0], 100);
 };
 
 const RunFactory = (title) => () => {
@@ -9685,7 +9685,7 @@ const pageDNE = (response) => {
 "use strict";
 class PolyHash {
   constructor() {
-    this.map = Array(1000).fill(null);
+    this.map = Array(200).fill(null);
     this.origin = "";
     this.destination = "";
     this.currentParent = "";
@@ -9704,7 +9704,7 @@ class PolyHash {
       children: children
     };
 
-    let bucket = Math.floor(hashString(title) % this.map.length);
+    let bucket = Math.floor(this.hashString(title) % this.map.length);
     if (this.map[bucket] === null) {
       this.map[bucket] = [];
     }
@@ -9716,7 +9716,17 @@ class PolyHash {
   }
 
   resizeMap() {
-    //for now this'll do nothing
+    let temp = [];
+    this.map.forEach((bucket) => {
+      if (bucket) temp.push(...bucket);
+    });
+
+    this.map = Array(this.map.length * 2).fill(null);
+    let bucket;
+    temp.forEach((obj) => {
+      bucket = Math.floor(this.hashString(obj.title) % this.map.length);
+      this.map[bucket] ? this.map[bucket].push(obj) : this.map[bucket] = [obj];
+    });
   }
 
   changeParent(parent) {
@@ -9724,7 +9734,7 @@ class PolyHash {
   }
   get(string) {
     let match = {};
-    let bucket = Math.floor(hashString(string) % this.map.length);
+    let bucket = Math.floor(this.hashString(string) % this.map.length);
 
     if (this.map[bucket] === null) {
         return false;
@@ -9770,27 +9780,28 @@ class PolyHash {
 
   reset(newOrigin) {
     this.map = [];
-    this.map = Array(1000).fill(null);
+    this.map = Array(200).fill(null);
     this.origin = newOrigin;
     // this.destination = "";
     this.currentParent = newOrigin;
     this.count = 0;
   }
+
+  hashString(string) {
+    let hash = 1,
+        i = 0;
+
+    while (i < string.length) {
+      hash += string.charCodeAt(i);
+      i ++;
+    }
+
+    hash = Math.floor(hash * Math.PI * 100000);
+    return Math.abs(hash);
+  }
 }
 /* harmony export (immutable) */ __webpack_exports__["a"] = PolyHash;
 
-
-const hashString = (string) => {
-  var hash = 1;
-  let i = 0;
-  while (i < string.length) {
-    hash += string.charCodeAt(i);
-    i ++;
-  }
-
-  hash = Math.floor(hash * Math.PI * 100000);
-  return Math.abs(hash);
-};
 
 
 /***/ }),
@@ -9807,10 +9818,10 @@ const hashString = (string) => {
 // D3 Tips and Tricks v4 by Malcolm Maclean
 
 // this associated gist
-//https://gist.github.com/d3noob/43a860bc0024792f8803bba8ca0d5ecd
+// https://gist.github.com/d3noob/43a860bc0024792f8803bba8ca0d5ecd
 
 // this js fiddle https://jsfiddle.net/a6pLqpxw/8/
-//linked by Rohit Totala on Stack Overflow
+// linked by Rohit Totala on Stack Overflow
 
 // and Corey Ladovsky (https://github.com/coreyladovsky)
 // for working through some examples with me
@@ -9862,10 +9873,6 @@ class TreeVisualization {
     this.nodes = newTree.descendants();
     let links = newTree.descendants().slice(1);
 
-    // this.nodes.forEach((d) => {
-    //   d.y = d.depth * 200;
-    // });
-
     let link = this.canvas.selectAll("path.link")
         .data(links, d => d.id);
 
@@ -9887,7 +9894,7 @@ class TreeVisualization {
     linkUpdate.transition()
       .duration(500)
       .delay(150)
-      .style("stroke", "#333");
+      .style("stroke", "#777");
 
 
     var linkExit = link.exit().transition()
@@ -9918,10 +9925,10 @@ class TreeVisualization {
       .transition()
       .delay(200)
       .duration(1000)
-      .style("fill", "#333");
+      .style("fill", "#777");
 
-    nodeEnter.append("circle")
-      .attr("r", 1);
+    // nodeEnter.append("circle")
+    //   .attr("r", 1);
 
     let nodeUpdate = nodeEnter.merge(node);
 
@@ -9967,14 +9974,14 @@ class TreeVisualization {
         this.currentNode = this.nodes.filter(d => d.data.title === node.parent);
         this.currentNode = this.currentNode[0];
         nodeObj.parent = this.currentNode;
-
-        let returnNode = __WEBPACK_IMPORTED_MODULE_0_d3__["a" /* hierarchy */](nodeObj);
-        returnNode.depth = this.currentNode.depth + 1;
-        returnNode.height = this.currentNode.height - 1;
-
-        this.currentNode.children = [returnNode];
-        this.currentNode.data.children = [returnNode];
       }
+
+      let returnNode = __WEBPACK_IMPORTED_MODULE_0_d3__["a" /* hierarchy */](nodeObj);
+      returnNode.depth = this.currentNode.depth + 1;
+      returnNode.height = this.currentNode.height - 1;
+
+      this.currentNode.children = [returnNode];
+      this.currentNode.data.children = [returnNode];
 
       this.updateTree();
       return;

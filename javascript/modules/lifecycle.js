@@ -95,10 +95,12 @@ const filterPages = (pages) => {
       i ++;
       continue;
     }
+
     if ((50 * Math.random()) + frequency > 50) {
       filtered.push(pages[i]);
       LinkMap.add(pages[i]);
     }
+
     i ++;
   }
 
@@ -132,7 +134,6 @@ const Run = (pages) => {
   let i = 0;
 
   while (i < pages.length) {
-    LinkMap.add(pages[i]);
     FetchQue.push(RunFactory(pages[i]));
     if (pages[i].toLowerCase() === LinkMap.destination.toLowerCase()) {
       FetchQue.length = 0;
@@ -148,8 +149,7 @@ const Run = (pages) => {
     return;
   }
 
-  // Tree.render(LinkMap);
-  setTimeout(FetchQue[0], 200);
+  setTimeout(FetchQue[0], 100);
 };
 
 const RunFactory = (title) => () => {

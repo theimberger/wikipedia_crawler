@@ -6,10 +6,10 @@ import * as d3 from "d3";
 // D3 Tips and Tricks v4 by Malcolm Maclean
 
 // this associated gist
-//https://gist.github.com/d3noob/43a860bc0024792f8803bba8ca0d5ecd
+// https://gist.github.com/d3noob/43a860bc0024792f8803bba8ca0d5ecd
 
 // this js fiddle https://jsfiddle.net/a6pLqpxw/8/
-//linked by Rohit Totala on Stack Overflow
+// linked by Rohit Totala on Stack Overflow
 
 // and Corey Ladovsky (https://github.com/coreyladovsky)
 // for working through some examples with me
@@ -61,10 +61,6 @@ export default class TreeVisualization {
     this.nodes = newTree.descendants();
     let links = newTree.descendants().slice(1);
 
-    // this.nodes.forEach((d) => {
-    //   d.y = d.depth * 200;
-    // });
-
     let link = this.canvas.selectAll("path.link")
         .data(links, d => d.id);
 
@@ -86,7 +82,7 @@ export default class TreeVisualization {
     linkUpdate.transition()
       .duration(500)
       .delay(150)
-      .style("stroke", "#333");
+      .style("stroke", "#777");
 
 
     var linkExit = link.exit().transition()
@@ -117,10 +113,10 @@ export default class TreeVisualization {
       .transition()
       .delay(200)
       .duration(1000)
-      .style("fill", "#333");
+      .style("fill", "#777");
 
-    nodeEnter.append("circle")
-      .attr("r", 1);
+    // nodeEnter.append("circle")
+    //   .attr("r", 1);
 
     let nodeUpdate = nodeEnter.merge(node);
 
@@ -166,14 +162,14 @@ export default class TreeVisualization {
         this.currentNode = this.nodes.filter(d => d.data.title === node.parent);
         this.currentNode = this.currentNode[0];
         nodeObj.parent = this.currentNode;
-
-        let returnNode = d3.hierarchy(nodeObj);
-        returnNode.depth = this.currentNode.depth + 1;
-        returnNode.height = this.currentNode.height - 1;
-
-        this.currentNode.children = [returnNode];
-        this.currentNode.data.children = [returnNode];
       }
+
+      let returnNode = d3.hierarchy(nodeObj);
+      returnNode.depth = this.currentNode.depth + 1;
+      returnNode.height = this.currentNode.height - 1;
+
+      this.currentNode.children = [returnNode];
+      this.currentNode.data.children = [returnNode];
 
       this.updateTree();
       return;
