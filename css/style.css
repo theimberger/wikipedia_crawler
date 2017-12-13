@@ -35,7 +35,7 @@ footer {
   bottom: 30px;
   right: 50px;
   text-align: right;
-  z-index: 10;
+  z-index: 5;
 }
 
 footer h2 {
@@ -152,6 +152,7 @@ li {
   position: fixed;
   background: white;
   overflow: scroll;
+  z-index: 10;
 }
 
 #disam_modal h2 {
