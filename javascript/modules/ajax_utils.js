@@ -13,7 +13,11 @@ export const fetchWikiPage = (title, callback) => {
       wikiRequest.readyState === XMLHttpRequest.DONE
       && wikiRequest.status === 200
     ) {
-      let pages = formatResponse(wikiRequest);
+      let pages = formatResponse(wikiRequest, callback);
+      if (!pages) {
+        return;
+      }
+
       let title = pages.pop();
 
       callback(pages, title);
@@ -25,7 +29,7 @@ export const fetchWikiPage = (title, callback) => {
   wikiRequest.send();
 };
 
-const formatResponse = (response) => {
+const formatResponse = (response, callback) => {
   let rjson = JSON.parse(response.responseText);
   if (pageDNE(rjson)) {
     console.log("page DNE");
@@ -33,8 +37,17 @@ const formatResponse = (response) => {
   }
   let pages = Object.keys(rjson.query.pages);
   pages = pages[0];
+
   let title = rjson.query.pages[pages].title;
   pages = rjson.query.pages[pages].revisions[0]["*"];
+
+  if (pages.slice(0, 9).toLowerCase() === "#redirect") {
+    pages = pages.match(/\[(.*?)\]/g);
+    pages = pages[0];
+    fetchWikiPage(pages.slice(2, pages.length - 1), callback);
+    return;
+  }
+
   let Wiktionary = (pages.slice(2,12).toLowerCase() === "wiktionary");
   Wiktionary = (Wiktionary || pages.match(/may refer to/g) !== null);
   pages = pages.match(/\[(.*?)\]/g).map(
