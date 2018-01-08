@@ -9345,7 +9345,7 @@ const Start = () => {
 
 
 const InputListener = (e) => {
-  if (e.keyCode !== 13 && e.type === "keydown") {
+  if (e.keyCode !== 13 && e.keyCode !== 9 && e.type === "keydown") {
     return;
   }
   e.preventDefault();
