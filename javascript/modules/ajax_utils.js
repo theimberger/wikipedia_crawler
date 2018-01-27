@@ -2,9 +2,16 @@
 export const fetchWikiPage = (title, callback) => {
   var wikiRequest = new XMLHttpRequest();
 
+    // wikiRequest.open(
+    //   "GET",
+    //   `https://en.wikipedia.org/w/api.php?action=query&prop=revisions&rvprop=content&format=json&origin=*&titles=${title}`
+    // );
+
     wikiRequest.open(
       "GET",
-      `https://en.wikipedia.org/w/api.php?action=query&prop=revisions&rvprop=content&format=json&origin=*&titles=${title}`
+      "https://en.wikipedia.org/w/api.php?action=query&prop=revisions" +
+        "%7Cpageimages&rvprop=content&piprop=original&" +
+        "format=json&origin=*&titles=" + title
     );
 
   wikiRequest.onreadystatechange = () => {
@@ -37,6 +44,8 @@ const formatResponse = (response, callback) => {
   }
   let pages = Object.keys(rjson.query.pages);
   pages = pages[0];
+
+  debugger
 
   let title = rjson.query.pages[pages].title;
   pages = rjson.query.pages[pages].revisions[0]["*"];

@@ -9610,9 +9610,16 @@ const disamModal = (pages, callback) => {
 const fetchWikiPage = (title, callback) => {
   var wikiRequest = new XMLHttpRequest();
 
+    // wikiRequest.open(
+    //   "GET",
+    //   `https://en.wikipedia.org/w/api.php?action=query&prop=revisions&rvprop=content&format=json&origin=*&titles=${title}`
+    // );
+
     wikiRequest.open(
       "GET",
-      `https://en.wikipedia.org/w/api.php?action=query&prop=revisions&rvprop=content&format=json&origin=*&titles=${title}`
+      "https://en.wikipedia.org/w/api.php?action=query&prop=revisions" +
+        "%7Cpageimages&rvprop=content&piprop=original&" +
+        "format=json&origin=*&titles=" + title
     );
 
   wikiRequest.onreadystatechange = () => {
@@ -9647,6 +9654,8 @@ const formatResponse = (response, callback) => {
   }
   let pages = Object.keys(rjson.query.pages);
   pages = pages[0];
+
+  debugger
 
   let title = rjson.query.pages[pages].title;
   pages = rjson.query.pages[pages].revisions[0]["*"];
@@ -9944,6 +9953,10 @@ class TreeVisualization {
     // nodeEnter.append("circle")
     //   .attr("r", 1);
 
+
+    nodeEnter.on("mouseover", this.handleMouseOver);
+
+
     let nodeUpdate = nodeEnter.merge(node);
 
 
@@ -10015,6 +10028,14 @@ class TreeVisualization {
     this.currentNode.data.children.push(returnNode.data);
 
 
+  }
+
+  handleMouseOver(d, i) {
+    __WEBPACK_IMPORTED_MODULE_0_d3__["b" /* select */](this).append("image")
+      .attr("xlink:href", function(d) { return "https://am22.akamaized.net/tms/cnt/uploads/2015/10/o-DISASTER-ARTIST-GREG-SESTERO-facebook.jpg"; })
+      .attr("x", "-12px")
+      .attr("y", "-12px")
+      .attr("width", "100px");
   }
 
   drawTree() {

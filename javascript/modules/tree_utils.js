@@ -118,6 +118,10 @@ export default class TreeVisualization {
     // nodeEnter.append("circle")
     //   .attr("r", 1);
 
+
+    nodeEnter.on("mouseover", this.handleMouseOver);
+
+
     let nodeUpdate = nodeEnter.merge(node);
 
 
@@ -189,6 +193,14 @@ export default class TreeVisualization {
     this.currentNode.data.children.push(returnNode.data);
 
 
+  }
+
+  handleMouseOver(d, i) {
+    d3.select(this).append("image")
+      .attr("xlink:href", function(d) { return "https://am22.akamaized.net/tms/cnt/uploads/2015/10/o-DISASTER-ARTIST-GREG-SESTERO-facebook.jpg"; })
+      .attr("x", "-12px")
+      .attr("y", "-12px")
+      .attr("width", "100px");
   }
 
   drawTree() {
