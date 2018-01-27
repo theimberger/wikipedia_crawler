@@ -9431,7 +9431,7 @@ const filterPages = (pages) => {
   return filtered;
 };
 
-const Run = (pages) => {
+const Run = (pages, title, image) => {
   if (pages[pages.length - 1] === "Wiktionary"
     && LinkMap.destination !== "Wiktionary"){
     pages.pop();
@@ -9446,6 +9446,7 @@ const Run = (pages) => {
   var log = document.getElementById('log');
   pages = filterPages(pages);
   LinkMap.get(LinkMap.currentParent).children = pages;
+  LinkMap.get(LinkMap.currentParent).image = image;
 
   if (Tree.origin !== LinkMap.origin) {
     Tree.plant(LinkMap.get(LinkMap.origin));
@@ -9633,9 +9634,11 @@ const fetchWikiPage = (title, callback) => {
         return;
       }
 
+      let image = pages[1];
+      pages = pages[0];
       let title = pages.pop();
 
-      callback(pages, title);
+      callback(pages, title, image);
     } else if (wikiRequest.readyState === XMLHttpRequest.DONE) {
       alert("error");
     }
@@ -9652,10 +9655,15 @@ const formatResponse = (response, callback) => {
     console.log("page DNE");
     return [];
   }
-  let pages = Object.keys(rjson.query.pages);
+  let pages = Object.keys(rjson.query.pages),
+      image = false;
   pages = pages[0];
 
-  debugger
+  if (rjson.query.pages[pages].original) {
+    image = rjson.query.pages[pages].original.source;
+  }
+
+  console.log(image);
 
   let title = rjson.query.pages[pages].title;
   pages = rjson.query.pages[pages].revisions[0]["*"];
@@ -9690,7 +9698,7 @@ const formatResponse = (response, callback) => {
     pages.push("Wiktionary");
   }
   pages.push(title);
-  return pages;
+  return [pages, image];
 };
 
 const pageDNE = (response) => {
@@ -9714,7 +9722,7 @@ class PolyHash {
     this.count = 0;
   }
 
-  add(title, parent = this.currentParent, children = []) {
+  add(title, parent = this.currentParent, children = [], image = false) {
     if (this.origin === "") {
       this.origin = title;
       this.currentParent = title;
@@ -9723,7 +9731,8 @@ class PolyHash {
     let addition = {
       title: title,
       parent: parent,
-      children: children
+      children: children,
+      image: image
     };
 
     let bucket = Math.floor(this.hashString(title) % this.map.length);
@@ -9754,7 +9763,7 @@ class PolyHash {
   changeParent(parent) {
     this.currentParent = parent;
   }
-  
+
   get(string) {
     let match = {};
     let bucket = Math.floor(this.hashString(string) % this.map.length);
@@ -10031,8 +10040,9 @@ class TreeVisualization {
   }
 
   handleMouseOver(d, i) {
+    debugger
     __WEBPACK_IMPORTED_MODULE_0_d3__["b" /* select */](this).append("image")
-      .attr("xlink:href", function(d) { return "https://am22.akamaized.net/tms/cnt/uploads/2015/10/o-DISASTER-ARTIST-GREG-SESTERO-facebook.jpg"; })
+      .attr("xlink:href", function(d) { return d.data.image; })
       .attr("x", "-12px")
       .attr("y", "-12px")
       .attr("width", "100px");

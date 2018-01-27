@@ -107,7 +107,7 @@ const filterPages = (pages) => {
   return filtered;
 };
 
-const Run = (pages) => {
+const Run = (pages, title, image) => {
   if (pages[pages.length - 1] === "Wiktionary"
     && LinkMap.destination !== "Wiktionary"){
     pages.pop();
@@ -122,6 +122,7 @@ const Run = (pages) => {
   var log = document.getElementById('log');
   pages = filterPages(pages);
   LinkMap.get(LinkMap.currentParent).children = pages;
+  LinkMap.get(LinkMap.currentParent).image = image;
 
   if (Tree.origin !== LinkMap.origin) {
     Tree.plant(LinkMap.get(LinkMap.origin));

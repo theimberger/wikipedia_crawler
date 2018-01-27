@@ -196,8 +196,9 @@ export default class TreeVisualization {
   }
 
   handleMouseOver(d, i) {
+    debugger
     d3.select(this).append("image")
-      .attr("xlink:href", function(d) { return "https://am22.akamaized.net/tms/cnt/uploads/2015/10/o-DISASTER-ARTIST-GREG-SESTERO-facebook.jpg"; })
+      .attr("xlink:href", function(d) { return d.data.image; })
       .attr("x", "-12px")
       .attr("y", "-12px")
       .attr("width", "100px");

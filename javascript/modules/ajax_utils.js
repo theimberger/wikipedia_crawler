@@ -25,9 +25,11 @@ export const fetchWikiPage = (title, callback) => {
         return;
       }
 
+      let image = pages[1];
+      pages = pages[0];
       let title = pages.pop();
 
-      callback(pages, title);
+      callback(pages, title, image);
     } else if (wikiRequest.readyState === XMLHttpRequest.DONE) {
       alert("error");
     }
@@ -42,10 +44,15 @@ const formatResponse = (response, callback) => {
     console.log("page DNE");
     return [];
   }
-  let pages = Object.keys(rjson.query.pages);
+  let pages = Object.keys(rjson.query.pages),
+      image = false;
   pages = pages[0];
 
-  debugger
+  if (rjson.query.pages[pages].original) {
+    image = rjson.query.pages[pages].original.source;
+  }
+
+  console.log(image);
 
   let title = rjson.query.pages[pages].title;
   pages = rjson.query.pages[pages].revisions[0]["*"];
@@ -80,7 +87,7 @@ const formatResponse = (response, callback) => {
     pages.push("Wiktionary");
   }
   pages.push(title);
-  return pages;
+  return [pages, image];
 };
 
 const pageDNE = (response) => {

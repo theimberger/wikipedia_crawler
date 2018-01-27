@@ -7,7 +7,7 @@ export default class PolyHash {
     this.count = 0;
   }
 
-  add(title, parent = this.currentParent, children = []) {
+  add(title, parent = this.currentParent, children = [], image = false) {
     if (this.origin === "") {
       this.origin = title;
       this.currentParent = title;
@@ -16,7 +16,8 @@ export default class PolyHash {
     let addition = {
       title: title,
       parent: parent,
-      children: children
+      children: children,
+      image: image
     };
 
     let bucket = Math.floor(this.hashString(title) % this.map.length);
@@ -47,7 +48,7 @@ export default class PolyHash {
   changeParent(parent) {
     this.currentParent = parent;
   }
-  
+
   get(string) {
     let match = {};
     let bucket = Math.floor(this.hashString(string) % this.map.length);
