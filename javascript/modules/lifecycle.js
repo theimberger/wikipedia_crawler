@@ -118,6 +118,10 @@ const Run = (pages, title, image) => {
   }
 
   let finished = LinkMap.currentParent.toLowerCase() === LinkMap.destination.toLowerCase();
+  
+  if (finished) {
+    finished = LinkMap.trace(LinkMap.destination);
+  }
 
   var log = document.getElementById('log');
   pages = filterPages(pages);

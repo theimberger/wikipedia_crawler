@@ -6,7 +6,7 @@ body, HTML, input {
 }
 
 body.query_mode {
-  background: black;
+  background: white;
 }
 
 #main {
@@ -93,11 +93,11 @@ input {
 
 form.query_mode input {
   color: #222 !important;
-  border-bottom: 1px solid #222;
+  border-bottom: 1px solid lightgrey;
 }
 form.query_mode:hover input {
-  color: white !important;
-  border-bottom: 1px solid white !important;
+  color: black !important;
+  border-bottom: 1px solid black !important;
 }
 
 #log-wrapper {
@@ -116,23 +116,23 @@ form.query_mode:hover input {
   min-height: min-content;
   min-height: -webkit-min-content;
   font-size: 9px;
-  color: #aaa;
-  z-index: 3;
+  color: #ddd;
+  z-index: 1;
   overflow-x: hidden;
 }
 
 #log.query_mode {
-  color: #111;
+  color: #eee;
   z-index: 1;
 }
 
 #log.query_mode:hover {
-  color: #aaa;
+  color: #ccc;
   z-index: 3;
 }
 
 #log.query_mode:hover .bold {
-  color: white;
+  color: black;
 }
 
 
@@ -201,38 +201,24 @@ li {
 }
 
 .node text {
-  font: 14px sans-serif;
-  fill: white;
+  font: 14px "Roboto Mono";
+  fill: grey;
   cursor: default;
-}
-
-.node text.trace {
-  font-size: 10px;
-  background-color: white;
-  color: green !important;
-}
-
-.internal_node circle {
-  fill: #cccccc;
-}
-
-.internal_node text {
-  text-shadow: 0 1px 0 #fff, 0 -1px 0 #fff, 1px 0 0 #fff, -1px 0 0 #fff;
 }
 
 .link {
   fill: none;
-  stroke: white;
+  stroke: #ccc;
   stroke-opacity: 0.4;
   stroke-width: 1px;
 }
 
 .node text:hover {
-  fill: white !important;
+  fill: black !important;
 }
 
 .link:hover {
-  stroke: white !important;
+  stroke: black !important;
 }
 
 .image_wrapper {
@@ -242,4 +228,8 @@ li {
   left: 0;
   position: absolute;
   background: red;
+}
+
+.trail circle {
+  fill: lightgreen !important;
 }

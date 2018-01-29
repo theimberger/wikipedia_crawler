@@ -56,13 +56,14 @@ export default class TreeVisualization {
     this.updateTree();
   }
 
-  updateTree(leaf) {
+  updateTree(final = false) {
     let newTree = this.tree(this.root);
     this.nodes = newTree.descendants();
     let links = newTree.descendants().slice(1);
 
 
     // toggle for scaling tree //
+    //
     // this.nodes.forEach((d) => {
     //   d.y = d.depth * 180;
     //   d.y = d.depth * 200;
@@ -89,7 +90,7 @@ export default class TreeVisualization {
     linkUpdate.transition()
       .duration(500)
       .delay(150)
-      .style("stroke", "#777");
+      .style("stroke", "black");
 
 
     var linkExit = link.exit().transition()
@@ -107,15 +108,17 @@ export default class TreeVisualization {
       .data(this.nodes, d => d.id || (d.id = this.count++));
 
     let nodeEnter = node.enter().append("g")
-      .attr("class", "node")
+      .attr("class",
+        d => final && final.includes(d.data.title) ? "node trail" : "node")
       .attr("transform", d => (
         `translate(${this.currentNode.y0},${this.currentNode.x0})`
       ));
 
 
     nodeEnter.append("circle")
-      .attr("r", 3)
-      .style("fill", "white");
+        .attr("r", 3)
+        .style("fill", "black")
+        .on("click", (d) => this.openLink(d));
 
 
     nodeEnter.on("mouseover", this.handleMouseOver);
@@ -126,6 +129,8 @@ export default class TreeVisualization {
 
 
     nodeUpdate.transition()
+      .attr("class",
+        d => final && final.includes(d.data.title) ? "node trail" : "node")
       .duration(200)
       .attr("transform", d => (
         `translate(${d.y},${d.x})`
@@ -138,10 +143,10 @@ export default class TreeVisualization {
 
   }
 
-  addLeaf(node, final=false) {
+  addLeaf(node, final = false) {
 
     if (this.currentNode.data.count === this.currentNode.data.children.length){
-      this.updateTree(node);
+      this.updateTree();
       this.idx += 1;
       this.currentNode = this.nodes[this.idx];
       while (this.currentNode.data.count === 0) {
@@ -175,7 +180,7 @@ export default class TreeVisualization {
       this.currentNode.children = [returnNode];
       this.currentNode.data.children = [returnNode];
 
-      this.updateTree();
+      this.updateTree(final);
       return;
     }
 
@@ -192,7 +197,6 @@ export default class TreeVisualization {
     this.currentNode.children.push(returnNode);
     this.currentNode.data.children.push(returnNode.data);
 
-
   }
 
   handleMouseOver(d, i) {
@@ -207,7 +211,7 @@ export default class TreeVisualization {
       d3.select(this)
         .append("text")
           .attr("dy", "75px")
-          .attr("x", "10px")
+          .attr("x", "20px")
           .text(d => d.data.title)
           .transition()
           .delay(200)
@@ -218,11 +222,9 @@ export default class TreeVisualization {
         .append("text")
           .attr("dy", "0")
           .attr("x", "20px")
-          .text(d => d.data.title)
-          .transition()
-          .delay(200)
-          .duration(1000)
-          .style("fill", "#777");
+          .text(d => d.data.title);
+
+
     }
 
       // d.children ?
@@ -237,10 +239,13 @@ export default class TreeVisualization {
     //     .style("fill", "#777");
   }
 
+  openLink(d) {
+    window.open("https://en.wikipedia.org/wiki/" + d.data.title, '_blank');
+  }
+
   handleMouseOut(d, i) {
     d3.select(this).select("image").remove();
     d3.select(this).select("text").remove("text");
-
   }
 
   drawTree() {
