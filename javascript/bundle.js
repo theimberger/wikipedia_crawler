@@ -9661,6 +9661,8 @@ const formatResponse = (response, callback) => {
 
   if (rjson.query.pages[pages].original) {
     image = rjson.query.pages[pages].original.source;
+    let preload = new Image();
+    preload.src = image;
   }
 
   console.log(image);
@@ -9905,6 +9907,13 @@ class TreeVisualization {
     this.nodes = newTree.descendants();
     let links = newTree.descendants().slice(1);
 
+
+    // toggle for scaling tree //
+    // this.nodes.forEach((d) => {
+    //   d.y = d.depth * 180;
+    //   d.y = d.depth * 200;
+    // });
+
     let link = this.canvas.selectAll("path.link")
         .data(links, d => d.id);
 
@@ -10033,12 +10042,34 @@ class TreeVisualization {
   }
 
   handleMouseOver(d, i) {
-    __WEBPACK_IMPORTED_MODULE_0_d3__["b" /* select */](this).append("image")
-      .attr("xlink:href", function(d) { return d.data.image; })
-      .style("border", "1px solid white")
-      .attr("x", "20px")
-      .attr("y", "-50px")
-      .attr("height", "100px");
+    if (d.data.image) {
+      __WEBPACK_IMPORTED_MODULE_0_d3__["b" /* select */](this)
+        .append("image")
+        .attr("xlink:href", d => d.data.image )
+        .style("class", "node_image")
+        .attr("x", "20px")
+        .attr("y", "-50px")
+        .attr("height", "100px");
+      __WEBPACK_IMPORTED_MODULE_0_d3__["b" /* select */](this)
+        .append("text")
+          .attr("dy", "75px")
+          .attr("x", "10px")
+          .text(d => d.data.title)
+          .transition()
+          .delay(200)
+          .duration(1000)
+          .style("fill", "#777");
+    } else {
+      __WEBPACK_IMPORTED_MODULE_0_d3__["b" /* select */](this)
+        .append("text")
+          .attr("dy", "0")
+          .attr("x", "20px")
+          .text(d => d.data.title)
+          .transition()
+          .delay(200)
+          .duration(1000)
+          .style("fill", "#777");
+    }
 
       // d.children ?
     // d3.select(this).append("text")
@@ -10053,7 +10084,8 @@ class TreeVisualization {
   }
 
   handleMouseOut(d, i) {
-    __WEBPACK_IMPORTED_MODULE_0_d3__["b" /* select */](this).select("image").remove("image");
+    __WEBPACK_IMPORTED_MODULE_0_d3__["b" /* select */](this).select("image").remove();
+    __WEBPACK_IMPORTED_MODULE_0_d3__["b" /* select */](this).select("text").remove("text");
 
   }
 

@@ -118,6 +118,7 @@ form.query_mode:hover input {
   font-size: 9px;
   color: #aaa;
   z-index: 3;
+  overflow-x: hidden;
 }
 
 #log.query_mode {
@@ -200,7 +201,7 @@ li {
 }
 
 .node text {
-  font: 10px sans-serif;
+  font: 14px sans-serif;
   fill: white;
   cursor: default;
 }

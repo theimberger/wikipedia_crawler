@@ -61,6 +61,13 @@ export default class TreeVisualization {
     this.nodes = newTree.descendants();
     let links = newTree.descendants().slice(1);
 
+
+    // toggle for scaling tree //
+    // this.nodes.forEach((d) => {
+    //   d.y = d.depth * 180;
+    //   d.y = d.depth * 200;
+    // });
+
     let link = this.canvas.selectAll("path.link")
         .data(links, d => d.id);
 
@@ -189,12 +196,34 @@ export default class TreeVisualization {
   }
 
   handleMouseOver(d, i) {
-    d3.select(this).append("image")
-      .attr("xlink:href", function(d) { return d.data.image; })
-      .style("border", "1px solid white")
-      .attr("x", "20px")
-      .attr("y", "-50px")
-      .attr("height", "100px");
+    if (d.data.image) {
+      d3.select(this)
+        .append("image")
+        .attr("xlink:href", d => d.data.image )
+        .style("class", "node_image")
+        .attr("x", "20px")
+        .attr("y", "-50px")
+        .attr("height", "100px");
+      d3.select(this)
+        .append("text")
+          .attr("dy", "75px")
+          .attr("x", "10px")
+          .text(d => d.data.title)
+          .transition()
+          .delay(200)
+          .duration(1000)
+          .style("fill", "#777");
+    } else {
+      d3.select(this)
+        .append("text")
+          .attr("dy", "0")
+          .attr("x", "20px")
+          .text(d => d.data.title)
+          .transition()
+          .delay(200)
+          .duration(1000)
+          .style("fill", "#777");
+    }
 
       // d.children ?
     // d3.select(this).append("text")
@@ -209,7 +238,8 @@ export default class TreeVisualization {
   }
 
   handleMouseOut(d, i) {
-    d3.select(this).select("image").remove("image");
+    d3.select(this).select("image").remove();
+    d3.select(this).select("text").remove("text");
 
   }
 

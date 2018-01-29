@@ -50,6 +50,8 @@ const formatResponse = (response, callback) => {
 
   if (rjson.query.pages[pages].original) {
     image = rjson.query.pages[pages].original.source;
+    let preload = new Image();
+    preload.src = image;
   }
 
   console.log(image);
