@@ -105,21 +105,14 @@ export default class TreeVisualization {
         `translate(${this.currentNode.y0},${this.currentNode.x0})`
       ));
 
-    nodeEnter.append("text")
-      .attr("dy", "3px")
-      .attr("x", d => d.children ? 10 : -10)
-      .attr("text-anchor", d => d.children ? "end" : "start")
-      .text(d => d.data.title)
-      .transition()
-      .delay(200)
-      .duration(1000)
-      .style("fill", "#777");
 
-    // nodeEnter.append("circle")
-    //   .attr("r", 1);
+    nodeEnter.append("circle")
+      .attr("r", 3)
+      .style("fill", "white");
 
 
     nodeEnter.on("mouseover", this.handleMouseOver);
+    nodeEnter.on("mouseout", this.handleMouseOut);
 
 
     let nodeUpdate = nodeEnter.merge(node);
@@ -196,12 +189,28 @@ export default class TreeVisualization {
   }
 
   handleMouseOver(d, i) {
-    debugger
     d3.select(this).append("image")
       .attr("xlink:href", function(d) { return d.data.image; })
-      .attr("x", "-12px")
-      .attr("y", "-12px")
-      .attr("width", "100px");
+      .style("border", "1px solid white")
+      .attr("x", "20px")
+      .attr("y", "-50px")
+      .attr("height", "100px");
+
+      // d.children ?
+    // d3.select(this).append("text")
+    //     .attr("dy", "3px")
+    //     .attr("x", d =>  -(parseInt(d.width))/2)
+    //     .attr("text-anchor", d => d.children ? "end" : "start")
+    //     .text(d => d.data.title)
+    //     .transition()
+    //     .delay(200)
+    //     .duration(1000)
+    //     .style("fill", "#777");
+  }
+
+  handleMouseOut(d, i) {
+    d3.select(this).select("image").remove("image");
+
   }
 
   drawTree() {

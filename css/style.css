@@ -233,3 +233,12 @@ li {
 .link:hover {
   stroke: white !important;
 }
+
+.image_wrapper {
+  width: 50px;
+  height: 50px;
+  top: 0;
+  left: 0;
+  position: absolute;
+  background: red;
+}
