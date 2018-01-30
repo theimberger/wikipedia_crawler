@@ -9638,9 +9638,14 @@ const fetchWikiPage = (title, callback) => {
         return;
       }
 
-      let image = pages[1];
-      pages = pages[0];
-      let title = pages.pop();
+      let title,
+          image;
+
+      if (pages.length > 0) {
+        image = pages[1];
+        pages = pages[0];
+        title = pages.pop();
+      }
 
       callback(pages, title, image);
     } else if (wikiRequest.readyState === XMLHttpRequest.DONE) {
@@ -9668,8 +9673,6 @@ const formatResponse = (response, callback) => {
     let preload = new Image();
     preload.src = image;
   }
-
-  console.log(image);
 
   let title = rjson.query.pages[pages].title;
   pages = rjson.query.pages[pages].revisions[0]["*"];
@@ -10008,8 +10011,6 @@ class TreeVisualization {
       }
     }
 
-
-
     let nodeObj = Object.assign({}, node);
     nodeObj.parent = this.currentNode;
     nodeObj.count = nodeObj.children.length;
@@ -10038,7 +10039,6 @@ class TreeVisualization {
     returnNode.depth = this.currentNode.depth + 1;
     returnNode.height = this.currentNode.height - 1;
 
-
     if (!this.currentNode.children){
       this.currentNode.children = [];
       this.currentNode.data.children = [];
@@ -10046,7 +10046,6 @@ class TreeVisualization {
 
     this.currentNode.children.push(returnNode);
     this.currentNode.data.children.push(returnNode.data);
-
   }
 
   handleMouseOver(d, i) {
@@ -10073,20 +10072,7 @@ class TreeVisualization {
           .attr("dy", "0")
           .attr("x", "20px")
           .text(d => d.data.title);
-
-
     }
-
-      // d.children ?
-    // d3.select(this).append("text")
-    //     .attr("dy", "3px")
-    //     .attr("x", d =>  -(parseInt(d.width))/2)
-    //     .attr("text-anchor", d => d.children ? "end" : "start")
-    //     .text(d => d.data.title)
-    //     .transition()
-    //     .delay(200)
-    //     .duration(1000)
-    //     .style("fill", "#777");
   }
 
   openLink(d) {

@@ -158,8 +158,6 @@ export default class TreeVisualization {
       }
     }
 
-
-
     let nodeObj = Object.assign({}, node);
     nodeObj.parent = this.currentNode;
     nodeObj.count = nodeObj.children.length;
@@ -188,7 +186,6 @@ export default class TreeVisualization {
     returnNode.depth = this.currentNode.depth + 1;
     returnNode.height = this.currentNode.height - 1;
 
-
     if (!this.currentNode.children){
       this.currentNode.children = [];
       this.currentNode.data.children = [];
@@ -196,7 +193,6 @@ export default class TreeVisualization {
 
     this.currentNode.children.push(returnNode);
     this.currentNode.data.children.push(returnNode.data);
-
   }
 
   handleMouseOver(d, i) {
@@ -223,20 +219,7 @@ export default class TreeVisualization {
           .attr("dy", "0")
           .attr("x", "20px")
           .text(d => d.data.title);
-
-
     }
-
-      // d.children ?
-    // d3.select(this).append("text")
-    //     .attr("dy", "3px")
-    //     .attr("x", d =>  -(parseInt(d.width))/2)
-    //     .attr("text-anchor", d => d.children ? "end" : "start")
-    //     .text(d => d.data.title)
-    //     .transition()
-    //     .delay(200)
-    //     .duration(1000)
-    //     .style("fill", "#777");
   }
 
   openLink(d) {

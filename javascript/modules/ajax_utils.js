@@ -25,9 +25,14 @@ export const fetchWikiPage = (title, callback) => {
         return;
       }
 
-      let image = pages[1];
-      pages = pages[0];
-      let title = pages.pop();
+      let title,
+          image;
+
+      if (pages.length > 0) {
+        image = pages[1];
+        pages = pages[0];
+        title = pages.pop();
+      }
 
       callback(pages, title, image);
     } else if (wikiRequest.readyState === XMLHttpRequest.DONE) {
@@ -53,8 +58,6 @@ const formatResponse = (response, callback) => {
     let preload = new Image();
     preload.src = image;
   }
-
-  console.log(image);
 
   let title = rjson.query.pages[pages].title;
   pages = rjson.query.pages[pages].revisions[0]["*"];
