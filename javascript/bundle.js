@@ -9689,6 +9689,7 @@ const formatResponse = (response, callback) => {
 
   let Wiktionary = (pages.slice(2,12).toLowerCase() === "wiktionary");
   Wiktionary = (Wiktionary || pages.match(/may refer to/g) !== null);
+  Wiktionary = (Wiktionary || pages.match(/most commonly refers to/g) !== null);
   pages = pages.match(/\[(.*?)\]/g).map(
     (word) => {
       if (
