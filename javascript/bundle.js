@@ -9401,6 +9401,10 @@ const filterPages = (pages) => {
 
 
   while (i < pages.length) {
+
+    // if statments, hurray!
+    // this logic provides the only selective capacity of the crawler
+
     if (LinkMap.includes(pages[i])
       || LinkMap.includes(pages[i].toLowerCase())) {
       i ++;
@@ -9416,6 +9420,10 @@ const filterPages = (pages) => {
         LinkMap.destination.length > 4) {
       filtered.push(pages[i]);
       LinkMap.add(pages[i]);
+      i ++;
+      continue;
+    }
+    if (FetchQue.length > 20) {
       i ++;
       continue;
     }
@@ -9442,7 +9450,7 @@ const Run = (pages, title, image) => {
   }
 
   let finished = LinkMap.currentParent.toLowerCase() === LinkMap.destination.toLowerCase();
-  
+
   if (finished) {
     finished = LinkMap.trace(LinkMap.destination);
   }
@@ -9614,11 +9622,6 @@ const disamModal = (pages, callback) => {
 
 const fetchWikiPage = (title, callback) => {
   var wikiRequest = new XMLHttpRequest();
-
-    // wikiRequest.open(
-    //   "GET",
-    //   `https://en.wikipedia.org/w/api.php?action=query&prop=revisions&rvprop=content&format=json&origin=*&titles=${title}`
-    // );
 
     wikiRequest.open(
       "GET",
@@ -9969,7 +9972,7 @@ class TreeVisualization {
 
 
     nodeEnter.append("circle")
-        .attr("r", 3)
+        .attr("r", 2)
         .style("fill", "black")
         .on("click", (d) => this.openLink(d));
 

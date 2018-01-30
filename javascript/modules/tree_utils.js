@@ -116,7 +116,7 @@ export default class TreeVisualization {
 
 
     nodeEnter.append("circle")
-        .attr("r", 3)
+        .attr("r", 2)
         .style("fill", "black")
         .on("click", (d) => this.openLink(d));
 

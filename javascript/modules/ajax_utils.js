@@ -2,11 +2,6 @@
 export const fetchWikiPage = (title, callback) => {
   var wikiRequest = new XMLHttpRequest();
 
-    // wikiRequest.open(
-    //   "GET",
-    //   `https://en.wikipedia.org/w/api.php?action=query&prop=revisions&rvprop=content&format=json&origin=*&titles=${title}`
-    // );
-
     wikiRequest.open(
       "GET",
       "https://en.wikipedia.org/w/api.php?action=query&prop=revisions" +
