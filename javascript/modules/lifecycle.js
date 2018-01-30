@@ -99,6 +99,12 @@ const filterPages = (pages) => {
       i ++;
       continue;
     }
+    if (pages[i].toLowerCase() === LinkMap.destination.toLowerCase()) {
+      filtered.push(pages[i]);
+      LinkMap.add(pages[i]);
+      i ++;
+      continue;
+    }
     if (FetchQue.length > 20) {
       i ++;
       continue;
