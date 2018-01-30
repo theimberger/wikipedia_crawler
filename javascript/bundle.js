@@ -9459,6 +9459,9 @@ const Run = (pages, title, image) => {
 
   if (finished) {
     finished = LinkMap.trace(LinkMap.destination);
+    if (!finished) {
+      finished = LinkMap.trace(LinkMap.destination.toLowerCase());
+    }
   }
 
   var log = document.getElementById('log');
@@ -9658,7 +9661,7 @@ const fetchWikiPage = (title, callback) => {
 
       callback(pages, title, image);
     } else if (wikiRequest.readyState === XMLHttpRequest.DONE) {
-      alert("error");
+      console.log("error: something happened to the AJAX :(");
     }
   };
 
@@ -9953,7 +9956,16 @@ class TreeVisualization {
     linkUpdate.transition()
       .duration(500)
       .delay(150)
-      .style("stroke", "black");
+      .style("stroke", (d) => {
+          if (final
+            && final.includes(d.data.title)
+            && final.includes(d.data.parent.data.title)) {
+            return "blue";
+          } else if (final) {
+            return "darkred";
+          }
+          return "black";
+      });
 
 
     var linkExit = link.exit().transition()

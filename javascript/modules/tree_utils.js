@@ -90,7 +90,16 @@ export default class TreeVisualization {
     linkUpdate.transition()
       .duration(500)
       .delay(150)
-      .style("stroke", "black");
+      .style("stroke", (d) => {
+          if (final
+            && final.includes(d.data.title)
+            && final.includes(d.data.parent.data.title)) {
+            return "blue";
+          } else if (final) {
+            return "darkred";
+          }
+          return "black";
+      });
 
 
     var linkExit = link.exit().transition()

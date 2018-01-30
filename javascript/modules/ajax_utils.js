@@ -31,7 +31,7 @@ export const fetchWikiPage = (title, callback) => {
 
       callback(pages, title, image);
     } else if (wikiRequest.readyState === XMLHttpRequest.DONE) {
-      alert("error");
+      console.log("error: something happened to the AJAX :(");
     }
   };
 

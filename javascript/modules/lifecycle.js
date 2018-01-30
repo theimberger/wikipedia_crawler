@@ -135,6 +135,9 @@ const Run = (pages, title, image) => {
 
   if (finished) {
     finished = LinkMap.trace(LinkMap.destination);
+    if (!finished) {
+      finished = LinkMap.trace(LinkMap.destination.toLowerCase());
+    }
   }
 
   var log = document.getElementById('log');
