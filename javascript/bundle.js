@@ -10054,12 +10054,13 @@ class TreeVisualization {
   handleMouseOver(d, i) {
     if (d.data.image) {
       __WEBPACK_IMPORTED_MODULE_0_d3__["b" /* select */](this)
-        .append("image")
+        .append("svg:image")
         .attr("xlink:href", d => d.data.image )
         .style("class", "node_image")
         .attr("x", "20px")
         .attr("y", "-50px")
-        .attr("height", "100px");
+        .attr("height", "100px")
+        .attr("width", "100px");
       __WEBPACK_IMPORTED_MODULE_0_d3__["b" /* select */](this)
         .append("text")
           .attr("dy", "75px")

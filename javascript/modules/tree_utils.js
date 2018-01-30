@@ -198,12 +198,13 @@ export default class TreeVisualization {
   handleMouseOver(d, i) {
     if (d.data.image) {
       d3.select(this)
-        .append("image")
+        .append("svg:image")
         .attr("xlink:href", d => d.data.image )
         .style("class", "node_image")
         .attr("x", "20px")
         .attr("y", "-50px")
-        .attr("height", "100px");
+        .attr("height", "100px")
+        .attr("width", "100px");
       d3.select(this)
         .append("text")
           .attr("dy", "75px")
