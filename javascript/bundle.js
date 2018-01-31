@@ -9405,17 +9405,23 @@ const filterPages = (pages) => {
     // if statments, hurray!
     // this logic provides the only selective capacity of the crawler
 
+    // skip the page if it's already in our LinkMap
     if (LinkMap.includes(pages[i])
       || LinkMap.includes(pages[i].toLowerCase())) {
       i ++;
       continue;
     }
+
+    // add the page if it's in the list of links
+    // on the target page
     if (targetPages.includes(pages[i])) {
       filtered.push(pages[i]);
       LinkMap.add(pages[i]);
       i ++;
       continue;
     }
+
+    // add the page if it includes our target
     if (pages[i].includes(LinkMap.destination) &&
         LinkMap.destination.length > 4) {
       filtered.push(pages[i]);
@@ -9423,13 +9429,25 @@ const filterPages = (pages) => {
       i ++;
       continue;
     }
+
+    // add the page if it is our target page lower case
     if (pages[i].toLowerCase() === LinkMap.destination.toLowerCase()) {
       filtered.push(pages[i]);
       LinkMap.add(pages[i]);
       i ++;
       continue;
     }
+
+    // skip the page if the queue is too long
     if (FetchQue.length > 20) {
+      i ++;
+      continue;
+    }
+
+    // add the page if we're in danger of running out of pages
+    if (FetchQue.length < 3 && filtered.length < 3) {
+      filtered.push(pages[i]);
+      LinkMap.add(pages[i]);
       i ++;
       continue;
     }
@@ -9490,7 +9508,11 @@ const Run = (pages, title, image) => {
 
   if (finished) {
     console.log("FOUND IT");
-    console.log(LinkMap.trace(LinkMap.destination));
+    let trace = LinkMap.trace(LinkMap.destination);
+     if (!trace) {
+       trace = LinkMap.trace(LinkMap.destination.toLowerCase());
+     }
+    console.log(trace);
     FetchQue.length = 0;
     return;
   }
