@@ -237,3 +237,22 @@ circle {
 .trail circle {
   fill: lightgreen !important;
 }
+
+@media only screen and (max-width: 700px)  {
+  body {
+    font-size: 10px;
+  }
+
+  #log-wrapper {
+    display: none;
+  }
+
+  header {
+    width: 90%;
+  }
+
+  form {
+    width: 70%;
+    right: 25%;
+  }
+}

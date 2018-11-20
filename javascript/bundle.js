@@ -9586,6 +9586,7 @@ const hideHeader = () => {
   let header = document.getElementsByTagName('header');
   header = header[0];
   let top = -(header.offsetHeight - 5);
+  if (window.innerWidth < 700) top -= 25
   top += "px";
   header.style.top = top;
 };
@@ -9902,6 +9903,8 @@ class PolyHash {
 // and Corey Ladovsky (https://github.com/coreyladovsky)
 // for working through some examples with me
 
+const isMobileOrSmall = window.innerWidth < 800;
+
 class TreeVisualization {
   constructor(origin = null) {
 
@@ -9949,13 +9952,11 @@ class TreeVisualization {
     this.nodes = newTree.descendants();
     let links = newTree.descendants().slice(1);
 
-
-    // toggle for scaling tree //
-    //
-    // this.nodes.forEach((d) => {
-    //   d.y = d.depth * 180;
-    //   d.y = d.depth * 200;
-    // });
+    if (isMobileOrSmall) {
+      this.nodes.forEach((d) => {
+        d.y = d.depth * 220;
+      });
+    }
 
     let link = this.canvas.selectAll("path.link")
         .data(links, d => d.id);
@@ -10015,7 +10016,21 @@ class TreeVisualization {
     nodeEnter.append("circle")
         .attr("r", 3)
         .style("fill", "black")
-        .on("click", (d) => this.openLink(d));
+        .on("click", (d) => this.openLink(d))
+
+    if (isMobileOrSmall) {
+      nodeEnter.insert("rect","text")
+        .attr("x", "15px")
+        .attr("y", "-5px")
+        .attr("width", d => d.data.title.length * 11)
+        .attr("height", 20)
+        .style("fill", "white");
+
+      nodeEnter.append("text")
+        .attr("dy", "10px")
+        .attr("x", "20px")
+        .text(d => d.data.title);
+    }
 
 
     nodeEnter.on("mouseover", this.handleMouseOver);

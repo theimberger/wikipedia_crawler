@@ -19,6 +19,7 @@ export const hideHeader = () => {
   let header = document.getElementsByTagName('header');
   header = header[0];
   let top = -(header.offsetHeight - 5);
+  if (window.innerWidth < 700) top -= 25
   top += "px";
   header.style.top = top;
 };
