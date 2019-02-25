@@ -9,7 +9,7 @@ pretty jarring.
 
 ## Notable Code
 The Crawler uses a custom data structure called a PolyHash (see this file in the javascript/modules folder) to ensure constant speed look-up
-and addition.  Notable methods for this structure are #get() and #add() shown below.
+and addition.  Notable methods for this structure are `get()` and `add()` shown below.
 
 ```JavaScript
 class PolyHash{
