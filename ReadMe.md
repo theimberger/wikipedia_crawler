@@ -79,7 +79,3 @@ and then are fired off sequentially using a setTimeout.
     FetchQue.shift();
   };
 ```
-
-## Todos
-Select the shortest path by first getting a path and then re-running the set of pages with the found path as a limit.
-If a shorter path is found it's returned and then the crawl is run again until the shortest path is found.
