@@ -16,20 +16,20 @@ class PolyHash{
 
   ...
 
-  add(title, parent = this.currentParent, children = []) {
+  add(title, parent = this.currentParent, children = [], image = false) {
     if (this.origin === "") {
       this.origin = title;
       this.currentParent = title;
     }
 
     let addition = {
-      title: title,
-      parent: parent,
-      children: children
+      title,
+      parent,
+      children,
+      image,
     };
 
     let bucket = Math.floor(this.hashString(title) % this.map.length);
-      // hashString is a custom hash function
     if (this.map[bucket] === null) {
       this.map[bucket] = [];
     }
@@ -43,12 +43,10 @@ class PolyHash{
   ...
 
   get(string) {
-    let match = {};
     let bucket = Math.floor(this.hashString(string) % this.map.length);
+    let match;
 
-    if (this.map[bucket] === null) {
-        return false;
-    }
+    if (this.map[bucket] === null) return false;
 
     this.map[bucket].forEach((node) => {
       if (node.title === string) {
@@ -56,10 +54,7 @@ class PolyHash{
       }
     });
 
-    if (match.title === string){
-      return match;
-    }
-    return false;
+    return match || false;
   }
 
   ...
