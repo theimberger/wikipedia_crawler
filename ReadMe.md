@@ -9,7 +9,7 @@ pretty jarring.
 
 ## Notable Code
 The Crawler uses a custom data structure called a PolyHash (see this file in the javascript/modules folder) to ensure constant speed look-up
-and addition.  Notable methods for this structure are #get() and #add() shown below.
+and addition.  Notable methods for this structure are `get()` and `add()` shown below.
 
 ```JavaScript
 class PolyHash{
@@ -74,7 +74,3 @@ and then are fired off sequentially using a setTimeout.
     FetchQue.shift();
   };
 ```
-
-## Todos
-Select the shortest path by first getting a path and then re-running the set of pages with the found path as a limit.
-If a shorter path is found it's returned and then the crawl is run again until the shortest path is found.
