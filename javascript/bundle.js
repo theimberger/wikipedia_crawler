@@ -9811,7 +9811,7 @@ class PolyHash {
 
   get(string) {
     let bucket = Math.floor(this.hashString(string) % this.map.length);
-    let match;
+    let match = false;
 
     if (this.map[bucket] === null) return false;
 
@@ -9821,7 +9821,7 @@ class PolyHash {
       }
     });
 
-    return match || false;
+    return match;
   }
 
   trace(to, from = this.origin) {
