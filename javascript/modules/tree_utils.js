@@ -14,7 +14,7 @@ import * as d3 from "d3";
 // and Corey Ladovsky (https://github.com/coreyladovsky)
 // for working through some examples with me
 
-const isMobileOrSmall = window.innerWidth < 800;
+const isMobileOrSmall = window.innerWidth < 800 || screen.width < 800;
 
 export default class TreeVisualization {
   constructor(origin = null) {
