@@ -9898,7 +9898,7 @@ class PolyHash {
 // and Corey Ladovsky (https://github.com/coreyladovsky)
 // for working through some examples with me
 
-const isMobileOrSmall = window.innerWidth < 800;
+const isMobileOrSmall = window.innerWidth < 800 || screen.width < 800;
 
 class TreeVisualization {
   constructor(origin = null) {
@@ -9947,6 +9947,11 @@ class TreeVisualization {
     this.nodes = newTree.descendants();
     let links = newTree.descendants().slice(1);
 
+    // assign ids before any data join so links and nodes share stable keys
+    this.nodes.forEach((d) => {
+      if (d.id === undefined) d.id = this.count++;
+    });
+
     if (isMobileOrSmall) {
       this.nodes.forEach((d) => {
         d.y = d.depth * 220;
@@ -9971,7 +9976,8 @@ class TreeVisualization {
       .duration(200)
       .attr("d", (d) => this.drawCurve(d, d.data.parent));
 
-    linkUpdate.transition()
+    // named so it doesn't interrupt the unnamed "d" transition above
+    linkUpdate.transition("stroke")
       .duration(500)
       .delay(150)
       .style("stroke", (d) => {
@@ -9998,7 +10004,7 @@ class TreeVisualization {
       .remove();
 
     let node = this.canvas.selectAll("g.node")
-      .data(this.nodes, d => d.id || (d.id = this.count++));
+      .data(this.nodes, d => d.id);
 
     let nodeEnter = node.enter().append("g")
       .attr("class",

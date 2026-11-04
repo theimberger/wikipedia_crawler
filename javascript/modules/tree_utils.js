@@ -63,6 +63,11 @@ export default class TreeVisualization {
     this.nodes = newTree.descendants();
     let links = newTree.descendants().slice(1);
 
+    // assign ids before any data join so links and nodes share stable keys
+    this.nodes.forEach((d) => {
+      if (d.id === undefined) d.id = this.count++;
+    });
+
     if (isMobileOrSmall) {
       this.nodes.forEach((d) => {
         d.y = d.depth * 220;
@@ -87,7 +92,8 @@ export default class TreeVisualization {
       .duration(200)
       .attr("d", (d) => this.drawCurve(d, d.data.parent));
 
-    linkUpdate.transition()
+    // named so it doesn't interrupt the unnamed "d" transition above
+    linkUpdate.transition("stroke")
       .duration(500)
       .delay(150)
       .style("stroke", (d) => {
@@ -114,7 +120,7 @@ export default class TreeVisualization {
       .remove();
 
     let node = this.canvas.selectAll("g.node")
-      .data(this.nodes, d => d.id || (d.id = this.count++));
+      .data(this.nodes, d => d.id);
 
     let nodeEnter = node.enter().append("g")
       .attr("class",
